@@ -1,0 +1,35 @@
+{
+  "name": "rollo",
+  "version": "0.9.0",
+  "description": "The Rollo programming language for the Orbotix Sphero robot using Node.js and Cylon.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/michaeloryl/rollo-npm.git"
+  },
+  "keywords": [
+    "sphero",
+    "programming",
+    "language",
+    "orbotix",
+    "cylon",
+    "node.js",
+    "logo",
+    "turtle",
+    "logo",
+    "robot"
+  ],
+  "author": "Michael F. Oryl Jr.",
+  "license": "GPL",
+  "bugs": {
+    "url": "https://github.com/michaeloryl/rollo-npm/issues"
+  },
+  "homepage": "https://github.com/michaeloryl/rollo-npm",
+  "dependencies": {
+    "async": "^0.9.0",
+    "lodash": "^3.8.0"
+  }
+}
