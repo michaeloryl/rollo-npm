@@ -10,10 +10,18 @@ var colors = require('./colors');
 var events = require('../events');
 var _ = require('lodash');
 
-var globals = {};
 var TOPIC_COLLISION = 'collision';
 
 var subroutines = {};
+
+var globals = {
+  sphero: null,
+  speed: 0,
+  defaultSpeed: 50,
+  heading: 0,
+  cmdCount: 0,
+  unknownCmdCount: 0
+};
 
 var commands = {
   log: log,
@@ -470,11 +478,8 @@ function executeLines(lines, done) {
 
 module.exports.execute = execute;
 
-function execute(lines, mySphero, done) {
-  if (done == undefined) {
-    done = mySphero; // mySphero is optional
-  }
-  globals = this;
+function execute(mySphero, lines, done) {
+  globals.sphero = mySphero;
   if (sphero()) {
     setHeading(0);
     sphero().configureCollisionDetection(0x01, 0x40, 0x40, 0x40, 0x40, 0x50); // defaults: 0x01, 0x40, 0x40, 0x50, 0x50, 0x50
