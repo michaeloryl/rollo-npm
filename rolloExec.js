@@ -7,14 +7,14 @@
 
 var async = require('async');
 var colors = require('./colors');
-var events = require('../events');
+var events = require('./events');
 var _ = require('lodash');
 
 var TOPIC_COLLISION = 'collision';
 
 var subroutines = {};
 
-var globals = {
+var state = {
   sphero: null,
   speed: 0,
   defaultSpeed: 50,
@@ -136,10 +136,10 @@ function gosub(params, cb) {
  * GO
  */
 function go(params, cb) {
-  console.log("go: speed=" + getDefaultSpeed() + " heading=" + globals.heading
+  console.log("go: speed=" + getDefaultSpeed() + " heading=" + state.heading
   + (params[0] ? " duration=" + params[0] : ''));
   if (sphero()) {
-    sphero().roll(getDefaultSpeed(), globals.heading)
+    sphero().roll(getDefaultSpeed(), state.heading)
   }
 
   setSpeed(getDefaultSpeed());
@@ -150,7 +150,7 @@ function go(params, cb) {
     setTimeout(function () {
       //console.log("go: done");
       setSpeed(0);
-      sphero().roll(0, globals.heading);
+      sphero().roll(0, state.heading);
       return cb();
     }, count * 1000);
   } else {
@@ -167,7 +167,7 @@ function stop(params, cb) {
   setSpeed(0);
 
   if (sphero()) {
-    sphero().roll(0, globals.heading)
+    sphero().roll(0, state.heading)
   }
   return cb();
 }
@@ -325,41 +325,41 @@ function log(params, cb) {
   return cb();
 }
 
-// -------- Commands to adjust Sphero features and globals
+// -------- Commands to adjust Sphero features and state
 
 function setSpeed(speed) {
-  if (globals.speed == null) {
-    globals.speed = 0;
+  if (state.speed == null) {
+    state.speed = 0;
   }
-  globals.speed = speed;
+  state.speed = speed;
 }
 
 function getSpeed() {
-  return globals.speed;
+  return state.speed;
 }
 
 function setDefaultSpeed(speed) {
-  if (globals.defaultSpeed == null) {
-    globals.defaultSpeed = 0;
+  if (state.defaultSpeed == null) {
+    state.defaultSpeed = 0;
   }
-  globals.defaultSpeed = speed;
+  state.defaultSpeed = speed;
 }
 
 function getDefaultSpeed() {
-  return globals.defaultSpeed;
+  return state.defaultSpeed;
 }
 
 function setHeading(heading, cb) {
   if (sphero()) { // maybe this will actually turn us if we're not moving
     if (getSpeed() === 0) {
-      sphero().roll(0, globals.heading);
+      sphero().roll(0, state.heading);
       if (cb) {
         setTimeout(function () {
           return cb();
         }, 600); // gives 600ms for ball to fully turn around if still
       }
     } else {
-      sphero().roll(globals.speed, globals.heading);
+      sphero().roll(state.speed, state.heading);
       if (cb) {
         return cb();
       }
@@ -368,28 +368,28 @@ function setHeading(heading, cb) {
 }
 
 function adjustHeading(heading, cb) {
-  if (globals.heading == null) {
-    globals.heading = 0;
+  if (state.heading == null) {
+    state.heading = 0;
   }
 
-  globals.heading += heading;
+  state.heading += heading;
 
-  if (globals.heading > 359) {
-    globals.heading -= 360;
+  if (state.heading > 359) {
+    state.heading -= 360;
   }
 
-  if (globals.heading < 0) {
-    globals.heading += 360;
+  if (state.heading < 0) {
+    state.heading += 360;
   }
 
   return setHeading(heading, cb);
 }
 
 function setColor(color) {
-  if (globals.color == null) {
-    globals.color = 0;
+  if (state.color == null) {
+    state.color = 0;
   }
-  globals.color = color;
+  state.color = color;
 
   if (sphero()) {
     sphero().setColor(color);
@@ -397,11 +397,11 @@ function setColor(color) {
 }
 
 function getColor() {
-  return globals.color || 0x000000;
+  return state.color || 0x000000;
 }
 
 function sphero() {
-  return globals.sphero;
+  return state.sphero;
 }
 
 function collisionHandler(data) {
@@ -461,10 +461,10 @@ function executeLine(line, callback) {
   var cmd = line[0];
   var params = line.slice(1);
   if (commands.hasOwnProperty(cmd)) {
-    globals.cmdCount++;
+    state.cmdCount++;
     return commands[cmd].call(this, params, callback);
   } else {
-    globals.unknownCmdCount++;
+    state.unknownCmdCount++;
     console.log("Rollo: Unsupported command -> " + cmd);
     return callback();
   }
@@ -476,10 +476,8 @@ function executeLines(lines, done) {
   });
 }
 
-module.exports.execute = execute;
-
 function execute(mySphero, lines, done) {
-  globals.sphero = mySphero;
+  state.sphero = mySphero;
   if (sphero()) {
     setHeading(0);
     sphero().configureCollisionDetection(0x01, 0x40, 0x40, 0x40, 0x40, 0x50); // defaults: 0x01, 0x40, 0x40, 0x50, 0x50, 0x50
@@ -487,3 +485,6 @@ function execute(mySphero, lines, done) {
   }
   return executeLines(hoistSubroutines(lines), done);
 }
+
+module.exports.execute = execute;
+module.exports.state = state;
