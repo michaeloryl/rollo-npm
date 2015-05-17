@@ -27,6 +27,7 @@ var commands = {
   log: log,
   say: log,
   wait: wait,
+  delay: wait,
   turnRight: turnRight,
   right: turnRight,
   turnLeft: turnLeft,
@@ -38,7 +39,6 @@ var commands = {
   pulse: pulse,
   go: go,
   stop: stop,
-  stopFast: stopFast,
   waitForTap: waitForTap,
   waitForHit: waitForTap,
   turnAround: turnAround,
@@ -46,7 +46,8 @@ var commands = {
   pointMe: pointMe,
   loop: repeat,
   repeat: repeat,
-  gosub: gosub
+  gosub: gosub,
+  call: gosub
 };
 
 // ************
@@ -168,20 +169,6 @@ function stop(params, cb) {
 
   if (sphero()) {
     sphero().roll(0, state.heading)
-  }
-  return cb();
-}
-
-/*
- * STOP FAST
- */
-function stopFast(params, cb) {
-  console.log("stopFast:");
-
-  setSpeed(0);
-
-  if (sphero()) {
-    sphero().stop();
   }
   return cb();
 }
@@ -488,3 +475,4 @@ function execute(mySphero, lines, done) {
 
 module.exports.execute = execute;
 module.exports.state = state;
+module.exports.commands = commands;
