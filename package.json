@@ -4,7 +4,7 @@
   "description": "The Rollo programming language for the Orbotix Sphero robot using Node.js and Cylon.js",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test/test.js"
   },
   "repository": {
     "type": "git",
@@ -34,7 +34,6 @@
   },
   "devDependencies": {
     "chai": "^2.3.0",
-    "moment": "^2.10.3",
     "proxyquire": "^1.4.0",
     "sinon": "^1.14.1"
   }
