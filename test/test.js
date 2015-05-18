@@ -6,17 +6,11 @@
  */
 var should = require('chai').should();
 var sinon = require('sinon');
-var moment = require('moment');
+var events = require('../events');
 var proxyquire = require('proxyquire');
 
-/*
-mySphero.on.calledOnce.should.equal(true);
-mySphero.configureCollisionDetection.calledOnce.should.equal(true);
-*/
-
-
 describe('state', function () {
-  it('Should have default values', function () {
+  it('should have default values', function () {
     var state = require('../rolloExec').state;
     state.speed.should.equal(0);
     state.defaultSpeed.should.equal(50);
@@ -26,7 +20,84 @@ describe('state', function () {
   })
 });
 
-describe('stop', function() {
+describe('waitForTap', function () {
+  var execute = require('../rolloExec').execute;
+  var state = require('../rolloExec').state;
+
+  it('should be able to waitForTap with 1 second timeout', function (done) {
+    var mySphero = getMockSphero();
+
+    var now = Date.now();
+
+    execute(mySphero, [['waitForTap', 1]], function () {
+      var now2 = Date.now();
+      now2.should.be.above(now + 1000);
+      now2.should.not.be.above(now + 1250); // 250ms wiggle room for other code execution time
+      mySphero.finishCalibration.callCount.should.equal(1);
+      done();
+    });
+  });
+
+  it('should be able to waitForTap and respond to tap event', function (done) {
+    var mySphero = getMockSphero();
+    var TOPIC_COLLISION = 'collision';
+    var now = Date.now();
+
+    setTimeout(function () {
+      events.publish(TOPIC_COLLISION, {xImpact: 1, yImpact: 2, speed: 50});
+    }, 250);
+
+    execute(mySphero, [['waitForTap', 1]], function () {
+      var now2 = Date.now();
+      console.log(now2 - now);
+      now2.should.be.above(now + 250);
+      mySphero.finishCalibration.callCount.should.equal(1);
+      done();
+    });
+  });
+});
+
+describe('repeat', function () {
+  var execute = require('../rolloExec').execute;
+  var state = require('../rolloExec').state;
+
+  it('should call a block of commands multiple times', function (done) {
+    var mySphero = getMockSphero();
+
+    execute(mySphero, [['repeat', 2, [['color', 'red'], ['stop']]]], function () {
+      mySphero.setColor.callCount.should.equal(2);
+      mySphero.roll.callCount.should.equal(3);  // exec calls it once every time, so 2 + 1 = 3
+      done();
+    });
+  });
+});
+
+describe('gosub', function () {
+  var execute = require('../rolloExec').execute;
+  var state = require('../rolloExec').state;
+
+  it('should call a named sub that appears at end of code', function (done) {
+    var mySphero = getMockSphero();
+
+    execute(mySphero, [['gosub', 'myTestSub'], ['sub', 'myTestSub', [['color', 'red'], ['stop']]]], function () {
+      mySphero.setColor.callCount.should.equal(1);
+      mySphero.roll.callCount.should.equal(2);  // exec calls it once every time, so 2 + 1 = 3
+      done();
+    });
+  });
+
+  it('should call a named sub that appears at start of code', function (done) {
+    var mySphero = getMockSphero();
+
+    execute(mySphero, [['sub', 'myTestSub', [['color', 'red'], ['stop']]], ['gosub', 'myTestSub']], function () {
+      mySphero.setColor.callCount.should.equal(1);
+      mySphero.roll.callCount.should.equal(2);  // exec calls it once every time, so 2 + 1 = 3
+      done();
+    });
+  });
+});
+
+describe('stop', function () {
   var execute = require('../rolloExec').execute;
   var state = require('../rolloExec').state;
 
@@ -38,7 +109,7 @@ describe('stop', function() {
 
     execute(mySphero, [['stop']], function () {
       mySphero.roll.callCount.should.equal(2);
-      mySphero.roll.calledWith(0,75).should.equal(true);
+      mySphero.roll.calledWith(0, 75).should.equal(true);
       state.speed.should.equal(0);
       state.heading.should.equal(75);
       done();
@@ -46,8 +117,21 @@ describe('stop', function() {
   });
 });
 
+describe('pointMe', function () {
+  var execute = require('../rolloExec').execute;
+  var state = require('../rolloExec').state;
 
-  describe('color', function () {
+  it('should be able to start calibration mode', function (done) {
+    var mySphero = getMockSphero();
+
+    execute(mySphero, [['pointMe']], function () {
+      mySphero.startCalibration.callCount.should.equal(1);
+      done();
+    });
+  });
+});
+
+describe('color', function () {
   var execute = require('../rolloExec').execute;
   var state = require('../rolloExec').state;
 
@@ -70,7 +154,7 @@ describe('stop', function() {
     execute(mySphero, [['flash', 'blue']], function () {
       mySphero.setColor.calledOnce.should.equal(true);
       mySphero.setColor.calledWith(0x0000ff).should.equal(true);
-      setTimeout(function() {
+      setTimeout(function () {
         mySphero.setColor.calledTwice.should.equal(true);
         mySphero.setColor.calledWith(0xffffff).should.equal(true);
         state.color.should.equal(0xffffff);
@@ -85,7 +169,7 @@ describe('stop', function() {
 
     execute(mySphero, [['pulse', 'green']], function () {
       mySphero.setColor.calledOnce.should.equal(true);
-      setTimeout(function() {
+      setTimeout(function () {
         mySphero.setColor.callCount.should.equal(18);
         mySphero.setColor.calledWith(0xffffff).should.equal(true);
         mySphero.setColor.calledWith(0x00ff00).should.equal(true);
@@ -96,11 +180,10 @@ describe('stop', function() {
   });
 });
 
-describe('wait', function() {
+describe('wait', function () {
   var execute = require('../rolloExec').execute;
   var state = require('../rolloExec').state;
 
-/*
   it('should be able to wait 1 second', function (done) {
     var mySphero = getMockSphero();
 
@@ -108,16 +191,15 @@ describe('wait', function() {
 
     execute(mySphero, [['wait', 1]], function () {
       var now2 = Date.now();
-      now2.should.be.above(now+1000);
-      now2.should.not.be.above(now+1250); // 250ms wiggle room for other code execution time
+      now2.should.be.above(now + 1000);
+      now2.should.not.be.above(now + 1250); // 250ms wiggle room for other code execution time
       mySphero.roll.callCount.should.equal(1);
       done();
     });
   });
-*/
 });
 
-describe('command aliases', function() {
+describe('command aliases', function () {
   var commands = require('../rolloExec').commands;
 
   it('should use delay as an alias for wait', function () {
@@ -153,7 +235,7 @@ describe('command aliases', function() {
   });
 });
 
-describe('go', function() {
+describe('go', function () {
   var execute = require('../rolloExec').execute;
   var state = require('../rolloExec').state;
 
@@ -171,7 +253,6 @@ describe('go', function() {
     });
   });
 
-/*
   it('should be able to go for 2 seconds and stop', function (done) {
     var mySphero = getMockSphero();
     state.heading = 45;
@@ -180,15 +261,14 @@ describe('go', function() {
 
     execute(mySphero, [['go', 2]], function () {
       var now2 = Date.now();
-      now2.should.be.above(now+2000);
-      now2.should.not.be.above(now+2250); // 250ms wiggle room for other code execution time
+      now2.should.be.above(now + 2000);
+      now2.should.not.be.above(now + 2250); // 250ms wiggle room for other code execution time
       mySphero.roll.callCount.should.equal(3);
       state.speed.should.equal(0);
       state.heading.should.equal(45);
       done();
     });
   });
-*/
 });
 
 describe('turn', function () {
@@ -318,7 +398,9 @@ function getMockSphero() {
     roll: sinon.stub(),
     on: sinon.stub(),
     configureCollisionDetection: sinon.stub(),
-    setColor: sinon.stub()
+    setColor: sinon.stub(),
+    startCalibration: sinon.stub(),
+    finishCalibration: sinon.stub()
   };
 
   return mySphero;
