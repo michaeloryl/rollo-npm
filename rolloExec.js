@@ -14,6 +14,21 @@ var TOPIC_COLLISION = 'collision';
 
 var subroutines = {};
 
+var variables = {};
+
+var operands = {
+  '+': add,
+  '-': subtract,
+  '*': multiply,
+  '/': divide,
+  '=': assign,
+  '==': compareEquals,
+  '<': compareLessThan,
+  '>': compareGreaterThan,
+  '<=': compareLessThanEquals,
+  '>=': compareGreaterThanEquals
+};
+
 var state = {
   sphero: null,
   speed: 0,
@@ -47,12 +62,64 @@ var commands = {
   loop: repeat,
   repeat: repeat,
   gosub: gosub,
-  call: gosub
+  call: gosub,
+  'let': setVar,
+  'if': doIf,
+  'while': doWhile
 };
+
+// ***********
+// EXPRESSIONS
+// ***********
+
+/*
+ * LET
+ */
+function setVar(params, cb) {
+  var total;
+  var varName = params[0];
+  var exp = params[1];
+
+  total = evaluate(exp);
+
+  variables[varName] = total;
+
+  return cb();
+}
 
 // ************
 // FLOW CONTROL
 // ************
+
+/*
+ * IF
+ */
+function doIf(params, cb) {
+  var condition = params[0]; // condition = [op, exp, exp]
+  var op = condition[0];
+  var a = condition[1];
+  var b = condition[2];
+  var lines = params[1];
+
+  if (operands[op](a, b)) {
+    console.log("if: " + op);
+    executeLines(lines, function () {
+      console.log("if: end " + op);
+      return cb();
+    });
+  } else {
+    return cb();
+  }
+}
+
+/*
+ * WHILE
+ */
+function doWhile(params, cb) {
+  var condition = params[0]; // condition = [op, exp, exp]
+  var lines = params[1];
+
+}
 
 /*
  * WAIT
@@ -428,11 +495,107 @@ function darkenColor(color, percentage) {
 
   return r + g + b;
 }
+// -------- expression processing
 
+function getVar(varName) {
+  if (!variables.hasOwnProperty(varName)) {
+    variables[varName] = 0;
+  }
+  return variables[varName];
+}
+
+function evaluate(data) {
+  var op;
+  var exp;
+
+  if (typeof data === 'number') {
+    op = '=';
+    exp = [data, undefined];
+  } else if (typeof data[0] === 'number') {
+    op = '=';
+    exp = [data[0], undefined];
+  } else {
+    op = data[0];
+    exp = data[1];
+  }
+
+  var v1 = exp[0];
+
+  if (typeof v1 === 'object') {
+    v1 = evaluate(v1);
+  } else if (typeof v1 === 'string') { // assume variable
+    v1 = getVar(v1);
+  }
+
+  var v2 = exp[1];
+
+  if (typeof v2 === 'object') {
+    v2 = evaluate(v2);
+  } else if (typeof v2 === 'string') { // assume variable
+    v2 = getVar(v2);
+  }
+
+  return operands[op](v1, v2);
+}
+
+function assign(a) {
+  return a;
+}
+
+function add(a, b) {
+  if (typeof a === 'string' || typeof b === 'string') {
+    return "" + a + b;
+  }
+  return a + b;
+}
+
+function subtract(a, b) {
+  if (typeof a === 'string' || typeof b === 'string') {
+    throw {err: "Subtract type error", msg: "Cannot subtract a string from a number, a string from a string, or a number from a string. Check your variables."}
+  }
+  return a - b;
+}
+
+function multiply(a, b) {
+  if (typeof a === 'string' || typeof b === 'string') {
+    throw {err: "Multiply type error", msg: "Cannot multiple a string with a number, a string with a string, or a number with a string. Check your variables."}
+  }
+  return a * b;
+}
+
+function divide(a, b) {
+  if (typeof a === 'string' || typeof b === 'string') {
+    throw {err: "Divide type error", msg: "Cannot divide a string by a number, a string by a string, or a number by a string. Check your variables."}
+  }
+  if (b === 0) {
+    throw "Cannot divide a number by 0.";
+  }
+  return a / b;
+}
+
+function compareEquals(a, b) {
+  return evaluate(a) == evaluate(b);
+}
+
+function compareLessThan(a, b) {
+  return evaluate(a) < evaluate(b);
+}
+
+function compareGreaterThan(a, b) {
+  return evaluate(a) > evaluate(b);
+}
+
+function compareLessThanEquals(a, b) {
+  return evaluate(a) <= evaluate(b);
+}
+
+function compareGreaterThanEquals(a, b) {
+  return evaluate(a) >= evaluate(b);
+}
 // -------- parse and execute lines of Rollo code
 
 function hoistSubroutines(lines) {
-  return _.filter(lines, function(line) {
+  return _.filter(lines, function (line) {
     var cmd = line[0];
     var params = line.slice(1);
     if (cmd === 'sub') {
@@ -476,3 +639,5 @@ function execute(mySphero, lines, done) {
 module.exports.execute = execute;
 module.exports.state = state;
 module.exports.commands = commands;
+module.exports.subroutines = subroutines;
+module.exports.variables = variables;

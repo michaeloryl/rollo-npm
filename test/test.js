@@ -7,7 +7,10 @@
 var should = require('chai').should();
 var sinon = require('sinon');
 var events = require('../events');
+var parse = require('../rolloLanguage').parse;
 var proxyquire = require('proxyquire');
+
+var doSlowTests = false;
 
 describe('state', function () {
   it('should have default values', function () {
@@ -20,41 +23,320 @@ describe('state', function () {
   })
 });
 
+describe('parse', function () {
+  it('should parse a simple command with no params', function () {
+    parse('go').should.deep.equal([['go']]);
+  });
+
+  it('should parse a simple command with 1 string param', function () {
+    parse('color "red"').should.deep.equal([['color', 'red']]);
+  });
+
+  it('should parse a simple command with 1 numeric param', function () {
+    parse('go 3 seconds').should.deep.equal([['go', 3]]);
+  });
+
+  it('should parse a block command with 1 numeric param', function () {
+    parse('repeat 3 times {\ngo\nstop\n}')
+      .should.deep.equal([['repeat', 3, [['go'], ['stop']]]]);
+  });
+
+  it('should parse a conditional > block', function () {
+    parse('if 2 > 4 {\nstop\ngo\n}')
+      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']]]]);
+    parse('if 2 greater than 4 {\nstop\ngo\n}')
+      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']]]]);
+    parse('if 2 is greater than 4 {\nstop\ngo\n}')
+      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']]]]);
+    parse('if 2 more than 4 {\nstop\ngo\n}')
+      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']]]]);
+    parse('if 2 is more than 4 {\nstop\ngo\n}')
+      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']]]]);
+  });
+
+  it('should parse a conditional < block', function () {
+    parse('if 5 < 2 {\nstop\ngo\n}')
+      .should.deep.equal([['if', ['<', 5, 2], [['stop'], ['go']]]]);
+    parse('if 5 less than 2 {\nstop\ngo\n}')
+      .should.deep.equal([['if', ['<', 5, 2], [['stop'], ['go']]]]);
+    parse('if 5 is less than 2 {\nstop\ngo\n}')
+      .should.deep.equal([['if', ['<', 5, 2], [['stop'], ['go']]]]);
+  });
+
+  it('should parse a conditional == block', function () {
+    parse('if 1 == 7 {\nstop\ngo\n}')
+      .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']]]]);
+    parse('if 1 === 7 {\nstop\ngo\n}')
+      .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']]]]);
+    parse('if 1 equals 7 {\nstop\ngo\n}')
+      .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']]]]);
+    parse('if 1 is equal to 7 {\nstop\ngo\n}')
+      .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']]]]);
+  });
+
+  it('should parse a conditional >= block', function () {
+    parse('if 10 >= 11 {\nstop\ngo\n}')
+      .should.deep.equal([['if', ['>=', 10, 11], [['stop'], ['go']]]]);
+  });
+
+  it('should parse a conditional <= block', function () {
+    parse('if 10 <= 11 {\nstop\ngo\n}')
+      .should.deep.equal([['if', ['<=', 10, 11], [['stop'], ['go']]]]);
+  });
+
+  it('should parse a conditional block with a complex comparison', function () {
+    //console.log("Object: " + JSON.stringify(parse('if 10 >= 2 + 3 {\nstop\ngo\n}')));
+    parse('if 10 >= 2 + 3 {\nstop\ngo\n}')
+      .should.deep.equal([["if", [">=", 10, ["+", [2, 3]]], [["stop"], ["go"]]]]);
+  });
+
+  it('should parse a sub and gosub', function () {
+    parse('gosub mySub\nsub mySub {\nstop\ngo\n}')
+      .should.deep.equal([["gosub", "mySub"], ["sub", "mySub", [["stop"], ["go"]]]]);
+  });
+});
+
+describe('if', function () {
+  var execute = require('../rolloExec').execute;
+  var state = require('../rolloExec').state;
+  var variables = require('../rolloExec').variables;
+
+  it('should process a true expression evaluation', function (done) {
+    var mySphero = getMockSphero();
+
+    execute(mySphero, [['if', ['<=', 10, 11], [['color', 'red'], ['go']]]], function () {
+      console.log('count: ' + mySphero.setColor.callCount);
+      mySphero.setColor.callCount.should.equal(1);
+      mySphero.roll.callCount.should.equal(2);
+      done();
+    });
+  });
+
+  it('should skip a false expression evaluation', function (done) {
+    var mySphero = getMockSphero();
+
+    execute(mySphero, [['if', ['<=', 11, 10], [['color', 'red'], ['go']]]], function () {
+      console.log('count: ' + mySphero.setColor.callCount);
+      mySphero.setColor.callCount.should.equal(0);
+      mySphero.roll.callCount.should.equal(1);
+      done();
+    });
+  });
+
+  it('should process a complex true expression evaluation', function (done) {
+    var mySphero = getMockSphero();
+
+    execute(mySphero,
+      [['if', ['==', ["+", [3, ["/", [["*", [2, ["-", [10, 2]]]], 4]]]], 7],
+        [['color', 'red'], ['go']]]], function () {
+        console.log('count: ' + mySphero.setColor.callCount);
+        mySphero.setColor.callCount.should.equal(1);
+        mySphero.roll.callCount.should.equal(2);
+        done();
+      });
+  });
+
+});
+/*
+ * let $var = 2 + 3*2 + (2+$v2) /3
+ */
+
+describe('let', function () {
+  var execute = require('../rolloExec').execute;
+  var variables = require('../rolloExec').variables;
+
+  it('should be able to assign a value to a variable', function (done) {
+    var mySphero = getMockSphero();
+
+    execute(mySphero, [['let', '$myVar', [2]]], function () {
+      variables.hasOwnProperty('$myVar').should.equal(true);
+      variables['$myVar'].should.equal(2);
+      done();
+    });
+  });
+
+  it('should be able to assign an addition expression to a variable', function (done) {
+    var mySphero = getMockSphero();
+    execute(mySphero, [['let', '$myVar',
+      [
+        "+",
+        [
+          2,
+          3
+        ]
+      ]
+    ]], function () {
+      variables.hasOwnProperty('$myVar').should.equal(true);
+      variables['$myVar'].should.equal(5);
+      done();
+    });
+  });
+
+  it('should be able to assign a multiplication expression to a variable', function (done) {
+    var mySphero = getMockSphero();
+    execute(mySphero, [['let', '$myVar',
+      [
+        "*",
+        [
+          2,
+          3
+        ]
+      ]
+    ]], function () {
+      variables.hasOwnProperty('$myVar').should.equal(true);
+      variables['$myVar'].should.equal(6);
+      done();
+    });
+  });
+
+  it('should be able to assign a subtraction expression to a variable', function (done) {
+    var mySphero = getMockSphero();
+    execute(mySphero, [['let', '$myVar',
+      [
+        "-",
+        [
+          3,
+          2
+        ]
+      ]
+    ]], function () {
+      variables.hasOwnProperty('$myVar').should.equal(true);
+      variables['$myVar'].should.equal(1);
+      done();
+    });
+  });
+
+  it('should be able to assign a division expression to a variable', function (done) {
+    var mySphero = getMockSphero();
+    execute(mySphero, [['let', '$myVar',
+      [
+        "/",
+        [
+          6,
+          2
+        ]
+      ]
+    ]], function () {
+      variables.hasOwnProperty('$myVar').should.equal(true);
+      variables['$myVar'].should.equal(3);
+      done();
+    });
+  });
+
+  it('should be able to assign a complex expression to a variable', function (done) {
+    var mySphero = getMockSphero();
+    execute(mySphero, [['let', '$myVar',
+      [
+        "+",
+        [
+          [
+            "*",
+            [
+              2,
+              3
+            ]
+          ],
+          3
+        ]
+      ]
+    ]], function () {
+      variables.hasOwnProperty('$myVar').should.equal(true);
+      variables['$myVar'].should.equal(9);
+      done();
+    });
+  });
+
+  it('should be able to evaluate an expression with a self-refrencing variable', function (done) {
+    var mySphero = getMockSphero();
+    variables['$myVar'] = 4;
+
+    execute(mySphero, [['let', '$myVar',
+      [
+        "+",
+        [
+          [
+            "*",
+            [
+              '$myVar',
+              3
+            ]
+          ],
+          3
+        ]
+      ]
+    ]], function () {
+      variables.hasOwnProperty('$myVar').should.equal(true);
+      variables['$myVar'].should.equal(15);
+      done();
+    });
+  });
+
+  it('should be able to evaluate an expression with a variable', function (done) {
+    var mySphero = getMockSphero();
+    variables['$someVar'] = 5;
+
+    execute(mySphero, [['let', '$myVar',
+      [
+        "+",
+        [
+          [
+            "*",
+            [
+              '$someVar',
+              3
+            ]
+          ],
+          3
+        ]
+      ]
+    ]], function () {
+      variables.hasOwnProperty('$myVar').should.equal(true);
+      variables['$myVar'].should.equal(18);
+      variables['$someVar'].should.equal(5);
+      done();
+    });
+  });
+});
+
 describe('waitForTap', function () {
   var execute = require('../rolloExec').execute;
   var state = require('../rolloExec').state;
 
-  it('should be able to waitForTap with 1 second timeout', function (done) {
-    var mySphero = getMockSphero();
+  if (doSlowTests) {
+    it('should be able to waitForTap with 1 second timeout', function (done) {
+      var mySphero = getMockSphero();
 
-    var now = Date.now();
+      var now = Date.now();
 
-    execute(mySphero, [['waitForTap', 1]], function () {
-      var now2 = Date.now();
-      now2.should.be.above(now + 1000);
-      now2.should.not.be.above(now + 1250); // 250ms wiggle room for other code execution time
-      mySphero.finishCalibration.callCount.should.equal(1);
-      done();
+      execute(mySphero, [['waitForTap', 1]], function () {
+        var now2 = Date.now();
+        now2.should.be.above(now + 1000);
+        now2.should.not.be.above(now + 1250); // 250ms wiggle room for other code execution time
+        mySphero.finishCalibration.callCount.should.equal(1);
+        done();
+      });
     });
-  });
+  }
 
-  it('should be able to waitForTap and respond to tap event', function (done) {
-    var mySphero = getMockSphero();
-    var TOPIC_COLLISION = 'collision';
-    var now = Date.now();
+  if (doSlowTests) {
+    it('should be able to waitForTap and respond to tap event', function (done) {
+      var mySphero = getMockSphero();
+      var TOPIC_COLLISION = 'collision';
+      var now = Date.now();
 
-    setTimeout(function () {
-      events.publish(TOPIC_COLLISION, {xImpact: 1, yImpact: 2, speed: 50});
-    }, 250);
+      setTimeout(function () {
+        events.publish(TOPIC_COLLISION, {xImpact: 1, yImpact: 2, speed: 50});
+      }, 250);
 
-    execute(mySphero, [['waitForTap', 1]], function () {
-      var now2 = Date.now();
-      console.log(now2 - now);
-      now2.should.be.above(now + 250);
-      mySphero.finishCalibration.callCount.should.equal(1);
-      done();
+      execute(mySphero, [['waitForTap', 1]], function () {
+        var now2 = Date.now();
+        console.log(now2 - now);
+        now2.should.be.above(now + 250);
+        mySphero.finishCalibration.callCount.should.equal(1);
+        done();
+      });
     });
-  });
+  }
 });
 
 describe('repeat', function () {
@@ -147,56 +429,62 @@ describe('color', function () {
     });
   });
 
-  it('should be able to flash the color', function (done) {
-    var mySphero = getMockSphero();
-    state.color = 0xffffff;
+  if (doSlowTests) {
+    it('should be able to flash the color', function (done) {
+      var mySphero = getMockSphero();
+      state.color = 0xffffff;
 
-    execute(mySphero, [['flash', 'blue']], function () {
-      mySphero.setColor.calledOnce.should.equal(true);
-      mySphero.setColor.calledWith(0x0000ff).should.equal(true);
-      setTimeout(function () {
-        mySphero.setColor.calledTwice.should.equal(true);
-        mySphero.setColor.calledWith(0xffffff).should.equal(true);
-        state.color.should.equal(0xffffff);
-        done();
-      }, 600);
+      execute(mySphero, [['flash', 'blue']], function () {
+        mySphero.setColor.calledOnce.should.equal(true);
+        mySphero.setColor.calledWith(0x0000ff).should.equal(true);
+        setTimeout(function () {
+          mySphero.setColor.calledTwice.should.equal(true);
+          mySphero.setColor.calledWith(0xffffff).should.equal(true);
+          state.color.should.equal(0xffffff);
+          done();
+        }, 600);
+      });
     });
-  });
+  }
 
-  it('should be able to pulse the color', function (done) {
-    var mySphero = getMockSphero();
-    state.color = 0xffffff;
+  if (doSlowTests) {
+    it('should be able to pulse the color', function (done) {
+      var mySphero = getMockSphero();
+      state.color = 0xffffff;
 
-    execute(mySphero, [['pulse', 'green']], function () {
-      mySphero.setColor.calledOnce.should.equal(true);
-      setTimeout(function () {
-        mySphero.setColor.callCount.should.equal(18);
-        mySphero.setColor.calledWith(0xffffff).should.equal(true);
-        mySphero.setColor.calledWith(0x00ff00).should.equal(true);
-        state.color.should.equal(0xffffff);
-        done();
-      }, 1100);
+      execute(mySphero, [['pulse', 'green']], function () {
+        mySphero.setColor.calledOnce.should.equal(true);
+        setTimeout(function () {
+          mySphero.setColor.callCount.should.equal(18);
+          mySphero.setColor.calledWith(0xffffff).should.equal(true);
+          mySphero.setColor.calledWith(0x00ff00).should.equal(true);
+          state.color.should.equal(0xffffff);
+          done();
+        }, 1100);
+      });
     });
-  });
+  }
 });
 
 describe('wait', function () {
   var execute = require('../rolloExec').execute;
   var state = require('../rolloExec').state;
 
-  it('should be able to wait 1 second', function (done) {
-    var mySphero = getMockSphero();
+  if (doSlowTests) {
+    it('should be able to wait 1 second', function (done) {
+      var mySphero = getMockSphero();
 
-    var now = Date.now();
+      var now = Date.now();
 
-    execute(mySphero, [['wait', 1]], function () {
-      var now2 = Date.now();
-      now2.should.be.above(now + 1000);
-      now2.should.not.be.above(now + 1250); // 250ms wiggle room for other code execution time
-      mySphero.roll.callCount.should.equal(1);
-      done();
+      execute(mySphero, [['wait', 1]], function () {
+        var now2 = Date.now();
+        now2.should.be.above(now + 1000);
+        now2.should.not.be.above(now + 1250); // 250ms wiggle room for other code execution time
+        mySphero.roll.callCount.should.equal(1);
+        done();
+      });
     });
-  });
+  }
 });
 
 describe('command aliases', function () {
@@ -245,7 +533,6 @@ describe('go', function () {
     state.defaultSpeed = 35;
 
     execute(mySphero, [['go']], function () {
-      var now2 = Date.now();
       mySphero.roll.callCount.should.equal(2);
       state.speed.should.equal(35);
       state.heading.should.equal(75);
@@ -253,22 +540,24 @@ describe('go', function () {
     });
   });
 
-  it('should be able to go for 2 seconds and stop', function (done) {
-    var mySphero = getMockSphero();
-    state.heading = 45;
+  if (doSlowTests) {
+    it('should be able to go for 2 seconds and stop', function (done) {
+      var mySphero = getMockSphero();
+      state.heading = 45;
 
-    var now = Date.now();
+      var now = Date.now();
 
-    execute(mySphero, [['go', 2]], function () {
-      var now2 = Date.now();
-      now2.should.be.above(now + 2000);
-      now2.should.not.be.above(now + 2250); // 250ms wiggle room for other code execution time
-      mySphero.roll.callCount.should.equal(3);
-      state.speed.should.equal(0);
-      state.heading.should.equal(45);
-      done();
+      execute(mySphero, [['go', 2]], function () {
+        var now2 = Date.now();
+        now2.should.be.above(now + 2000);
+        now2.should.not.be.above(now + 2250); // 250ms wiggle room for other code execution time
+        mySphero.roll.callCount.should.equal(3);
+        state.speed.should.equal(0);
+        state.heading.should.equal(45);
+        done();
+      });
     });
-  });
+  }
 });
 
 describe('turn', function () {
