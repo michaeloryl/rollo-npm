@@ -96,6 +96,25 @@ describe('parse', function () {
   });
 });
 
+describe('while', function () {
+  var execute = require('../rolloExec').execute;
+  var state = require('../rolloExec').state;
+  var variables = require('../rolloExec').variables;
+
+  it('should loop until the condition is true', function (done) {
+    var mySphero = getMockSphero();
+
+    execute(mySphero, parse('while $var1 < 3 {\n  let $var1 = $var1 + 1\n  color "blue"\n}'),
+      function () {
+        console.log('count: ' + mySphero.setColor.callCount);
+        variables['$var1'].should.equal(3);
+        mySphero.setColor.callCount.should.equal(3);
+        done();
+      });
+  });
+
+});
+
 describe('if', function () {
   var execute = require('../rolloExec').execute;
   var state = require('../rolloExec').state;

@@ -63,7 +63,7 @@ var commands = {
   repeat: repeat,
   gosub: gosub,
   call: gosub,
-  'let': setVar,
+  'let': assignVar,
   'if': doIf,
   'while': doWhile
 };
@@ -75,14 +75,14 @@ var commands = {
 /*
  * LET
  */
-function setVar(params, cb) {
+function assignVar(params, cb) {
   var total;
   var varName = params[0];
   var exp = params[1];
 
-  total = evaluate(exp);
+  value = evaluate(exp);
 
-  variables[varName] = total;
+  setVar(varName, value);
 
   return cb();
 }
@@ -117,8 +117,24 @@ function doIf(params, cb) {
  */
 function doWhile(params, cb) {
   var condition = params[0]; // condition = [op, exp, exp]
+  var op = condition[0];
+  var a = condition[1];
+  var b = condition[2];
   var lines = params[1];
 
+  console.log("while:");
+  async.whilst(function () {
+    return operands[op](a, b)
+  }, function (next) {
+    console.log('  while: loop');
+    executeLines(lines, function (err) {
+      console.log('  while: end-loop');
+      return next();
+    });
+  }, function (err, res) {
+    console.log("while: end");
+    return cb();
+  });
 }
 
 /*
@@ -504,16 +520,21 @@ function getVar(varName) {
   return variables[varName];
 }
 
+function setVar(varName, value) {
+  variables[varName] = value;
+  return value;
+}
+
 function evaluate(data) {
   var op;
   var exp;
 
   if (typeof data === 'number') {
-    op = '=';
-    exp = [data, undefined];
+    return data;
   } else if (typeof data[0] === 'number') {
-    op = '=';
-    exp = [data[0], undefined];
+    return data[0];
+  } else if (typeof data === 'string') {
+    return getVar(data);
   } else {
     op = data[0];
     exp = data[1];
