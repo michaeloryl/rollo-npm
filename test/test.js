@@ -10,7 +10,8 @@ var events = require('../events');
 var parse = require('../rolloLanguage').parse;
 var proxyquire = require('proxyquire');
 
-var doSlowTests = false;
+var doSlowTests = process.env.MOCHA_SLOW_TESTS === 'TRUE' ? true : false;
+
 
 describe('state', function () {
   it('should have default values', function () {
@@ -74,6 +75,17 @@ describe('parse', function () {
       .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']]]]);
   });
 
+  it('should parse a conditional != block', function () {
+    parse('if 1 != 7 {\nstop\ngo\n}')
+      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']]]]);
+    parse('if 1 !== 7 {\nstop\ngo\n}')
+      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']]]]);
+    parse('if 1 not equals 7 {\nstop\ngo\n}')
+      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']]]]);
+    parse('if 1 is not equal to 7 {\nstop\ngo\n}')
+      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']]]]);
+  });
+
   it('should parse a conditional >= block', function () {
     parse('if 10 >= 11 {\nstop\ngo\n}')
       .should.deep.equal([['if', ['>=', 10, 11], [['stop'], ['go']]]]);
@@ -123,7 +135,7 @@ describe('if', function () {
   it('should process a true expression evaluation', function (done) {
     var mySphero = getMockSphero();
 
-    execute(mySphero, [['if', ['<=', 10, 11], [['color', 'red'], ['go']]]], function () {
+    execute(mySphero, [['if', ['!=', 10, 11], [['color', 'red'], ['go']]]], function () {
       console.log('count: ' + mySphero.setColor.callCount);
       mySphero.setColor.callCount.should.equal(1);
       mySphero.roll.callCount.should.equal(2);
@@ -560,16 +572,16 @@ describe('go', function () {
   });
 
   if (doSlowTests) {
-    it('should be able to go for 2 seconds and stop', function (done) {
+    it('should be able to go for 1 seconds and stop', function (done) {
       var mySphero = getMockSphero();
       state.heading = 45;
 
       var now = Date.now();
 
-      execute(mySphero, [['go', 2]], function () {
+      execute(mySphero, [['go', 1]], function () {
         var now2 = Date.now();
-        now2.should.be.above(now + 2000);
-        now2.should.not.be.above(now + 2250); // 250ms wiggle room for other code execution time
+        now2.should.be.above(now + 1000);
+        now2.should.not.be.above(now + 1250); // 250ms wiggle room for other code execution time
         mySphero.roll.callCount.should.equal(3);
         state.speed.should.equal(0);
         state.heading.should.equal(45);

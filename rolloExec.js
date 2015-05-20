@@ -23,6 +23,7 @@ var operands = {
   '/': divide,
   '=': assign,
   '==': compareEquals,
+  '!=': compareNotEquals,
   '<': compareLessThan,
   '>': compareGreaterThan,
   '<=': compareLessThanEquals,
@@ -596,6 +597,10 @@ function divide(a, b) {
 
 function compareEquals(a, b) {
   return evaluate(a) == evaluate(b);
+}
+
+function compareNotEquals(a, b) {
+  return evaluate(a) != evaluate(b);
 }
 
 function compareLessThan(a, b) {
