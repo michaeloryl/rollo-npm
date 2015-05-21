@@ -637,7 +637,7 @@ function executeLine(lineObject, callback) {
   var line = lineObject.line;
   var cmd = line[0];
   var params = line.slice(1);
-  if (commands.hasOwnProperty(cmd)) {
+  if (lineObject.hasOwnProperty('line') && commands.hasOwnProperty(cmd)) {
     state.cmdCount++;
     events.publish(constants.LINE_RUNNING, lineObject);
     return commands[cmd].call(this, params, callback);
