@@ -1,6 +1,6 @@
 {
   "name": "rollo",
-  "version": "0.9.1",
+  "version": "0.10.0",
   "description": "The Rollo programming language for the Orbotix Sphero robot using Node.js and Cylon.js",
   "main": "index.js",
   "scripts": {
@@ -30,11 +30,10 @@
   "homepage": "https://github.com/michaeloryl/rollo-npm",
   "dependencies": {
     "async": "^0.9.0",
-    "lodash": "^3.8.0"
+    "lodash": "^3.9.1"
   },
   "devDependencies": {
     "chai": "^2.3.0",
-    "lodash": "^3.9.1",
     "proxyquire": "^1.4.0",
     "sinon": "^1.14.1"
   }
