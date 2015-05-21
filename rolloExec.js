@@ -9,10 +9,7 @@ var async = require('async');
 var colors = require('./colors');
 var events = require('./events');
 var _ = require('lodash');
-
-var TOPIC_COLLISION = 'collision';
-var UNKNOWN_LINE_RUNNING = 'unknown line';
-var LINE_RUNNING = 'line running';
+var constants = require('./constants');
 
 var subroutines = {};
 
@@ -161,7 +158,7 @@ function waitForTap(params, cb) {
   console.log("waitForTap:");
   var timer;
 
-  var topic = events.subscribe(TOPIC_COLLISION, function () {
+  var topic = events.subscribe(constants.TOPIC_COLLISION, function () {
     console.log("TAP!");
     topic.remove(); // no longer listen once we catch one collision
     if (sphero()) {
@@ -478,7 +475,7 @@ function sphero() {
 }
 
 function collisionHandler(data) {
-  events.publish(TOPIC_COLLISION, convertCollisionData(data.DATA));
+  events.publish(constants.TOPIC_COLLISION, convertCollisionData(data.DATA));
 }
 
 function convertCollisionData(data) {
@@ -642,11 +639,11 @@ function executeLine(lineObject, callback) {
   var params = line.slice(1);
   if (commands.hasOwnProperty(cmd)) {
     state.cmdCount++;
-    events.publish(LINE_RUNNING, convertCollisionData(data.DATA));
+    events.publish(constants.LINE_RUNNING, lineObject);
     return commands[cmd].call(this, params, callback);
   } else {
     state.unknownCmdCount++;
-    events.publish(UNKNOWN_LINE_RUNNING, convertCollisionData(data.DATA));
+    events.publish(constants.UNKNOWN_LINE_RUNNING, lineObject);
     console.log("Rollo: Unsupported command -> " + cmd);
     return callback();
   }
