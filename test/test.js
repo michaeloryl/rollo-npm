@@ -8,11 +8,11 @@ var should = require('chai').should();
 var sinon = require('sinon');
 var events = require('../events');
 var parse = require('../rolloLanguage').parse;
+var constants = require('../constants');
 var proxyquire = require('proxyquire');
 var _ = require('lodash');
 
 var doSlowTests = process.env.MOCHA_SLOW_TESTS === 'TRUE' ? true : false;
-
 
 describe('state', function () {
   it('should have default values', function () {
@@ -30,7 +30,7 @@ function linesOnly(obj) {
     var a = obj.line;
 
     var b = [];
-    a.forEach(function(element) {
+    a.forEach(function (element) {
       if (typeof element != 'object') {
         b.push(element);
       } else {
@@ -312,6 +312,67 @@ describe('waitForTap', function () {
       });
     });
   }
+});
+
+describe('line numbers', function () {
+  var execute = require('../rolloExec').execute;
+  var state = require('../rolloExec').state;
+
+  it('should know how many lines have been run', function (done) {
+    var mySphero = getMockSphero();
+    var lineEvent = sinon.stub();
+    var unknownLineEvent = sinon.stub();
+
+    var testSub = events.subscribe(constants.LINE_RUNNING, lineEvent);
+    var testSubUnknown = events.subscribe(constants.UNKNOWN_LINE_RUNNING, unknownLineEvent);
+
+    execute(mySphero, parse('color "orange"\nstop\n\r  say "test"'), function () {
+      lineEvent.callCount.should.equal(3);
+      unknownLineEvent.callCount.should.equal(0);
+
+      testSub.remove();
+      testSubUnknown.remove();
+      return done();
+    })
+  });
+
+  it('should know how many unknown lines have been run', function (done) {
+    var mySphero = getMockSphero();
+    var lineEvent = sinon.stub();
+    var unknownLineEvent = sinon.stub();
+
+    var testSub = events.subscribe(constants.LINE_RUNNING, lineEvent);
+    var testSubUnknown = events.subscribe(constants.UNKNOWN_LINE_RUNNING, unknownLineEvent);
+
+    execute(mySphero, [{"number": 1, "line": ["color", "orange"]}, {"number": 2, "line": ["STOOP"]}, {"number": 4, "line": ["say", "test"]}]
+      , function () {
+        lineEvent.callCount.should.equal(2);
+        unknownLineEvent.callCount.should.equal(1);
+
+        testSub.remove();
+        testSubUnknown.remove();
+        return done();
+      })
+  });
+
+  it('should get a valid line object with the event', function (done) {
+    var mySphero = getMockSphero();
+    var lineEvent = sinon.stub();
+    var unknownLineEvent = sinon.stub();
+
+    var testSub = events.subscribe(constants.LINE_RUNNING, lineEvent);
+    var testSubUnknown = events.subscribe(constants.UNKNOWN_LINE_RUNNING, unknownLineEvent);
+
+    execute(mySphero, parse('color "red"'), function () {
+      lineEvent.callCount.should.equal(1);
+      unknownLineEvent.callCount.should.equal(0);
+      lineEvent.calledWith({"number": 1, "line": ["color", "red"]}).should.equal(true);
+
+      testSub.remove();
+      testSubUnknown.remove();
+      return done();
+    })
+  });
 });
 
 describe('repeat', function () {
