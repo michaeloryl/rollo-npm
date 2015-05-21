@@ -6,17 +6,18 @@
  */
 var should = require('chai').should();
 var sinon = require('sinon');
-var events = require('../events');
-var parse = require('../rolloLanguage').parse;
-var constants = require('../constants');
+var events = require('../lib/events');
+var parse = require('../lib/rolloLanguage').parse;
+var constants = require('../lib/constants');
 var proxyquire = require('proxyquire');
-var _ = require('lodash');
 
-var doSlowTests = process.env.MOCHA_SLOW_TESTS === 'TRUE' ? true : false;
+console.log("skip: " + process.env.MOCHA_SKIP_SLOW_TESTS);
+
+var doSlowTests = process.env.MOCHA_SKIP_SLOW_TESTS ? false : true;
 
 describe('state', function () {
   it('should have default values', function () {
-    var state = require('../rolloExec').state;
+    var state = require('../lib/rolloExec').state;
     state.speed.should.equal(0);
     state.defaultSpeed.should.equal(50);
     state.heading.should.equal(0);
@@ -128,9 +129,9 @@ describe('parse', function () {
 });
 
 describe('while', function () {
-  var execute = require('../rolloExec').execute;
-  var state = require('../rolloExec').state;
-  var variables = require('../rolloExec').variables;
+  var execute = require('../lib/rolloExec').execute;
+  var state = require('../lib/rolloExec').state;
+  var variables = require('../lib/rolloExec').variables;
 
   it('should loop until the condition is true', function (done) {
     var mySphero = getMockSphero();
@@ -147,9 +148,9 @@ describe('while', function () {
 });
 
 describe('if', function () {
-  var execute = require('../rolloExec').execute;
-  var state = require('../rolloExec').state;
-  var variables = require('../rolloExec').variables;
+  var execute = require('../lib/rolloExec').execute;
+  var state = require('../lib/rolloExec').state;
+  var variables = require('../lib/rolloExec').variables;
 
   it('should process a true expression evaluation', function (done) {
     var mySphero = getMockSphero();
@@ -191,8 +192,8 @@ describe('if', function () {
  */
 
 describe('let', function () {
-  var execute = require('../rolloExec').execute;
-  var variables = require('../rolloExec').variables;
+  var execute = require('../lib/rolloExec').execute;
+  var variables = require('../lib/rolloExec').variables;
 
   it('should be able to assign a value to a variable', function (done) {
     var mySphero = getMockSphero();
@@ -274,8 +275,8 @@ describe('let', function () {
 });
 
 describe('waitForTap', function () {
-  var execute = require('../rolloExec').execute;
-  var state = require('../rolloExec').state;
+  var execute = require('../lib/rolloExec').execute;
+  var state = require('../lib/rolloExec').state;
 
   if (doSlowTests) {
     it('should be able to waitForTap with 1 second timeout', function (done) {
@@ -315,8 +316,8 @@ describe('waitForTap', function () {
 });
 
 describe('line numbers', function () {
-  var execute = require('../rolloExec').execute;
-  var state = require('../rolloExec').state;
+  var execute = require('../lib/rolloExec').execute;
+  var state = require('../lib/rolloExec').state;
 
   it('should know how many lines have been run', function (done) {
     var mySphero = getMockSphero();
@@ -376,8 +377,8 @@ describe('line numbers', function () {
 });
 
 describe('repeat', function () {
-  var execute = require('../rolloExec').execute;
-  var state = require('../rolloExec').state;
+  var execute = require('../lib/rolloExec').execute;
+  var state = require('../lib/rolloExec').state;
 
   it('should call a block of commands multiple times', function (done) {
     var mySphero = getMockSphero();
@@ -391,8 +392,8 @@ describe('repeat', function () {
 });
 
 describe('gosub', function () {
-  var execute = require('../rolloExec').execute;
-  var state = require('../rolloExec').state;
+  var execute = require('../lib/rolloExec').execute;
+  var state = require('../lib/rolloExec').state;
 
   it('should call a named sub that appears at end of code', function (done) {
     var mySphero = getMockSphero();
@@ -416,8 +417,8 @@ describe('gosub', function () {
 });
 
 describe('stop', function () {
-  var execute = require('../rolloExec').execute;
-  var state = require('../rolloExec').state;
+  var execute = require('../lib/rolloExec').execute;
+  var state = require('../lib/rolloExec').state;
 
   it('should be able to stop', function (done) {
     var mySphero = getMockSphero();
@@ -436,8 +437,8 @@ describe('stop', function () {
 });
 
 describe('pointMe', function () {
-  var execute = require('../rolloExec').execute;
-  var state = require('../rolloExec').state;
+  var execute = require('../lib/rolloExec').execute;
+  var state = require('../lib/rolloExec').state;
 
   it('should be able to start calibration mode', function (done) {
     var mySphero = getMockSphero();
@@ -450,8 +451,8 @@ describe('pointMe', function () {
 });
 
 describe('color', function () {
-  var execute = require('../rolloExec').execute;
-  var state = require('../rolloExec').state;
+  var execute = require('../lib/rolloExec').execute;
+  var state = require('../lib/rolloExec').state;
 
   it('should be able to set the color', function (done) {
     var mySphero = getMockSphero();
@@ -503,8 +504,8 @@ describe('color', function () {
 });
 
 describe('wait', function () {
-  var execute = require('../rolloExec').execute;
-  var state = require('../rolloExec').state;
+  var execute = require('../lib/rolloExec').execute;
+  var state = require('../lib/rolloExec').state;
 
   if (doSlowTests) {
     it('should be able to wait 1 second', function (done) {
@@ -524,7 +525,7 @@ describe('wait', function () {
 });
 
 describe('command aliases', function () {
-  var commands = require('../rolloExec').commands;
+  var commands = require('../lib/rolloExec').commands;
 
   it('should use delay as an alias for wait', function () {
     commands.wait.should.equal(commands.delay);
@@ -560,8 +561,8 @@ describe('command aliases', function () {
 });
 
 describe('go', function () {
-  var execute = require('../rolloExec').execute;
-  var state = require('../rolloExec').state;
+  var execute = require('../lib/rolloExec').execute;
+  var state = require('../lib/rolloExec').state;
 
   it('should be able to go', function (done) {
     var mySphero = getMockSphero();
@@ -597,8 +598,8 @@ describe('go', function () {
 });
 
 describe('turn', function () {
-  var execute = require('../rolloExec').execute;
-  var state = require('../rolloExec').state;
+  var execute = require('../lib/rolloExec').execute;
+  var state = require('../lib/rolloExec').state;
 
   it('should be able to turn right with no parameter', function (done) {
     var mySphero = getMockSphero();
@@ -690,8 +691,8 @@ describe('turn', function () {
 });
 
 describe('speed', function () {
-  var execute = require('../rolloExec').execute;
-  var state = require('../rolloExec').state;
+  var execute = require('../lib/rolloExec').execute;
+  var state = require('../lib/rolloExec').state;
 
   it('should be able to set various default speeds', function (done) {
     var mySphero = getMockSphero();
