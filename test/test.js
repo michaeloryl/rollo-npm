@@ -9,6 +9,7 @@ var sinon = require('sinon');
 var events = require('../events');
 var parse = require('../rolloLanguage').parse;
 var proxyquire = require('proxyquire');
+var _ = require('lodash');
 
 var doSlowTests = process.env.MOCHA_SLOW_TESTS === 'TRUE' ? true : false;
 
@@ -24,86 +25,104 @@ describe('state', function () {
   })
 });
 
+function linesOnly(obj) {
+  if (obj.hasOwnProperty('line')) {
+    var a = obj.line;
+
+    var b = [];
+    a.forEach(function(element) {
+      if (typeof element != 'object') {
+        b.push(element);
+      } else {
+        b.push(element.map(linesOnly));
+      }
+    });
+    return b;
+  } else {
+    return obj;
+  }
+}
+
 describe('parse', function () {
   it('should parse a simple command with no params', function () {
-    parse('go').should.deep.equal([['go']]);
+    parse('go').map(linesOnly).should.deep.equal([['go']]);
   });
 
   it('should parse a simple command with 1 string param', function () {
-    parse('color "red"').should.deep.equal([['color', 'red']]);
+    parse('color "red"').map(linesOnly).should.deep.equal([['color', 'red']]);
   });
 
   it('should parse a simple command with 1 numeric param', function () {
-    parse('go 3 seconds').should.deep.equal([['go', 3]]);
+    parse('go 3 seconds').map(linesOnly).should.deep.equal([['go', 3]]);
   });
 
   it('should parse a block command with 1 numeric param', function () {
-    parse('repeat 3 times {\ngo\nstop\n}')
+    parse('repeat 3 times {\ngo\nstop\n}').map(linesOnly)
       .should.deep.equal([['repeat', 3, [['go'], ['stop']]]]);
   });
 
   it('should parse a conditional > block', function () {
-    parse('if 2 > 4 {\nstop\ngo\n}')
+    parse('if 2 > 4 {\nstop\ngo\n}').map(linesOnly)
       .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']]]]);
-    parse('if 2 greater than 4 {\nstop\ngo\n}')
+    parse('if 2 greater than 4 {\nstop\ngo\n}').map(linesOnly)
       .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']]]]);
-    parse('if 2 is greater than 4 {\nstop\ngo\n}')
+    parse('if 2 is greater than 4 {\nstop\ngo\n}').map(linesOnly)
       .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']]]]);
-    parse('if 2 more than 4 {\nstop\ngo\n}')
+    parse('if 2 more than 4 {\nstop\ngo\n}').map(linesOnly)
       .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']]]]);
-    parse('if 2 is more than 4 {\nstop\ngo\n}')
+    parse('if 2 is more than 4 {\nstop\ngo\n}').map(linesOnly)
       .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']]]]);
   });
 
   it('should parse a conditional < block', function () {
-    parse('if 5 < 2 {\nstop\ngo\n}')
+    parse('if 5 < 2 {\nstop\ngo\n}').map(linesOnly)
       .should.deep.equal([['if', ['<', 5, 2], [['stop'], ['go']]]]);
-    parse('if 5 less than 2 {\nstop\ngo\n}')
+    parse('if 5 less than 2 {\nstop\ngo\n}').map(linesOnly)
       .should.deep.equal([['if', ['<', 5, 2], [['stop'], ['go']]]]);
-    parse('if 5 is less than 2 {\nstop\ngo\n}')
+    parse('if 5 is less than 2 {\nstop\ngo\n}').map(linesOnly)
       .should.deep.equal([['if', ['<', 5, 2], [['stop'], ['go']]]]);
   });
 
   it('should parse a conditional == block', function () {
-    parse('if 1 == 7 {\nstop\ngo\n}')
+    parse('if 1 == 7 {\nstop\ngo\n}').map(linesOnly)
       .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']]]]);
-    parse('if 1 === 7 {\nstop\ngo\n}')
+    parse('if 1 === 7 {\nstop\ngo\n}').map(linesOnly)
       .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']]]]);
-    parse('if 1 equals 7 {\nstop\ngo\n}')
+    parse('if 1 equals 7 {\nstop\ngo\n}').map(linesOnly)
       .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']]]]);
-    parse('if 1 is equal to 7 {\nstop\ngo\n}')
+    parse('if 1 is equal to 7 {\nstop\ngo\n}').map(linesOnly)
       .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']]]]);
   });
 
   it('should parse a conditional != block', function () {
-    parse('if 1 != 7 {\nstop\ngo\n}')
+    parse('if 1 != 7 {\nstop\ngo\n}').map(linesOnly)
       .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']]]]);
-    parse('if 1 !== 7 {\nstop\ngo\n}')
+    parse('if 1 !== 7 {\nstop\ngo\n}').map(linesOnly)
       .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']]]]);
-    parse('if 1 not equals 7 {\nstop\ngo\n}')
+    parse('if 1 not equals 7 {\nstop\ngo\n}').map(linesOnly)
       .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']]]]);
-    parse('if 1 is not equal to 7 {\nstop\ngo\n}')
+    parse('if 1 is not equal to 7 {\nstop\ngo\n}').map(linesOnly)
       .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']]]]);
   });
 
   it('should parse a conditional >= block', function () {
-    parse('if 10 >= 11 {\nstop\ngo\n}')
+    parse('if 10 >= 11 {\nstop\ngo\n}').map(linesOnly)
       .should.deep.equal([['if', ['>=', 10, 11], [['stop'], ['go']]]]);
   });
 
   it('should parse a conditional <= block', function () {
-    parse('if 10 <= 11 {\nstop\ngo\n}')
+    parse('if 10 <= 11 {\nstop\ngo\n}').map(linesOnly)
       .should.deep.equal([['if', ['<=', 10, 11], [['stop'], ['go']]]]);
   });
 
   it('should parse a conditional block with a complex comparison', function () {
     //console.log("Object: " + JSON.stringify(parse('if 10 >= 2 + 3 {\nstop\ngo\n}')));
-    parse('if 10 >= 2 + 3 {\nstop\ngo\n}')
+    parse('if 10 >= 2 + 3 {\nstop\ngo\n}').map(linesOnly)
       .should.deep.equal([["if", [">=", 10, ["+", [2, 3]]], [["stop"], ["go"]]]]);
   });
 
   it('should parse a sub and gosub', function () {
-    parse('gosub mySub\nsub mySub {\nstop\ngo\n}')
+    parse('gosub mySub\nsub mySub {\nstop\ngo\n}').map(linesOnly)
       .should.deep.equal([["gosub", "mySub"], ["sub", "mySub", [["stop"], ["go"]]]]);
   });
 });
@@ -135,7 +154,7 @@ describe('if', function () {
   it('should process a true expression evaluation', function (done) {
     var mySphero = getMockSphero();
 
-    execute(mySphero, [['if', ['!=', 10, 11], [['color', 'red'], ['go']]]], function () {
+    execute(mySphero, parse('if 10> 9 {\ncolor "red"\n go\n}'), function () {
       console.log('count: ' + mySphero.setColor.callCount);
       mySphero.setColor.callCount.should.equal(1);
       mySphero.roll.callCount.should.equal(2);
@@ -146,7 +165,7 @@ describe('if', function () {
   it('should skip a false expression evaluation', function (done) {
     var mySphero = getMockSphero();
 
-    execute(mySphero, [['if', ['<=', 11, 10], [['color', 'red'], ['go']]]], function () {
+    execute(mySphero, parse('if 10 <= 9 {\ncolor "red"\n go\n}'), function () {
       console.log('count: ' + mySphero.setColor.callCount);
       mySphero.setColor.callCount.should.equal(0);
       mySphero.roll.callCount.should.equal(1);
@@ -158,8 +177,7 @@ describe('if', function () {
     var mySphero = getMockSphero();
 
     execute(mySphero,
-      [['if', ['==', ["+", [3, ["/", [["*", [2, ["-", [10, 2]]]], 4]]]], 7],
-        [['color', 'red'], ['go']]]], function () {
+      parse('if 10 - 2 > 3 * (9 - 2*4) {\ncolor "red"\n go\n}'), function () {
         console.log('count: ' + mySphero.setColor.callCount);
         mySphero.setColor.callCount.should.equal(1);
         mySphero.roll.callCount.should.equal(2);
@@ -179,7 +197,7 @@ describe('let', function () {
   it('should be able to assign a value to a variable', function (done) {
     var mySphero = getMockSphero();
 
-    execute(mySphero, [['let', '$myVar', [2]]], function () {
+    execute(mySphero, parse('let $myVar= 2'), function () {
       variables.hasOwnProperty('$myVar').should.equal(true);
       variables['$myVar'].should.equal(2);
       done();
@@ -188,15 +206,7 @@ describe('let', function () {
 
   it('should be able to assign an addition expression to a variable', function (done) {
     var mySphero = getMockSphero();
-    execute(mySphero, [['let', '$myVar',
-      [
-        "+",
-        [
-          2,
-          3
-        ]
-      ]
-    ]], function () {
+    execute(mySphero, parse('let $myVar= 2 + 3'), function () {
       variables.hasOwnProperty('$myVar').should.equal(true);
       variables['$myVar'].should.equal(5);
       done();
@@ -205,15 +215,7 @@ describe('let', function () {
 
   it('should be able to assign a multiplication expression to a variable', function (done) {
     var mySphero = getMockSphero();
-    execute(mySphero, [['let', '$myVar',
-      [
-        "*",
-        [
-          2,
-          3
-        ]
-      ]
-    ]], function () {
+    execute(mySphero, parse('let $myVar= 2* 3'), function () {
       variables.hasOwnProperty('$myVar').should.equal(true);
       variables['$myVar'].should.equal(6);
       done();
@@ -222,15 +224,7 @@ describe('let', function () {
 
   it('should be able to assign a subtraction expression to a variable', function (done) {
     var mySphero = getMockSphero();
-    execute(mySphero, [['let', '$myVar',
-      [
-        "-",
-        [
-          3,
-          2
-        ]
-      ]
-    ]], function () {
+    execute(mySphero, parse('let $myVar= 3-2'), function () {
       variables.hasOwnProperty('$myVar').should.equal(true);
       variables['$myVar'].should.equal(1);
       done();
@@ -239,15 +233,7 @@ describe('let', function () {
 
   it('should be able to assign a division expression to a variable', function (done) {
     var mySphero = getMockSphero();
-    execute(mySphero, [['let', '$myVar',
-      [
-        "/",
-        [
-          6,
-          2
-        ]
-      ]
-    ]], function () {
+    execute(mySphero, parse('let $myVar=6 /2'), function () {
       variables.hasOwnProperty('$myVar').should.equal(true);
       variables['$myVar'].should.equal(3);
       done();
@@ -256,21 +242,7 @@ describe('let', function () {
 
   it('should be able to assign a complex expression to a variable', function (done) {
     var mySphero = getMockSphero();
-    execute(mySphero, [['let', '$myVar',
-      [
-        "+",
-        [
-          [
-            "*",
-            [
-              2,
-              3
-            ]
-          ],
-          3
-        ]
-      ]
-    ]], function () {
+    execute(mySphero, parse('let $myVar= 2*3+3'), function () {
       variables.hasOwnProperty('$myVar').should.equal(true);
       variables['$myVar'].should.equal(9);
       done();
@@ -281,21 +253,7 @@ describe('let', function () {
     var mySphero = getMockSphero();
     variables['$myVar'] = 4;
 
-    execute(mySphero, [['let', '$myVar',
-      [
-        "+",
-        [
-          [
-            "*",
-            [
-              '$myVar',
-              3
-            ]
-          ],
-          3
-        ]
-      ]
-    ]], function () {
+    execute(mySphero, parse('let $myVar= 3*$myVar + 3'), function () {
       variables.hasOwnProperty('$myVar').should.equal(true);
       variables['$myVar'].should.equal(15);
       done();
@@ -306,21 +264,7 @@ describe('let', function () {
     var mySphero = getMockSphero();
     variables['$someVar'] = 5;
 
-    execute(mySphero, [['let', '$myVar',
-      [
-        "+",
-        [
-          [
-            "*",
-            [
-              '$someVar',
-              3
-            ]
-          ],
-          3
-        ]
-      ]
-    ]], function () {
+    execute(mySphero, parse('let $myVar= 3* $someVar + 3'), function () {
       variables.hasOwnProperty('$myVar').should.equal(true);
       variables['$myVar'].should.equal(18);
       variables['$someVar'].should.equal(5);
@@ -339,7 +283,7 @@ describe('waitForTap', function () {
 
       var now = Date.now();
 
-      execute(mySphero, [['waitForTap', 1]], function () {
+      execute(mySphero, parse('waitForTap 1'), function () {
         var now2 = Date.now();
         now2.should.be.above(now + 1000);
         now2.should.not.be.above(now + 1250); // 250ms wiggle room for other code execution time
@@ -359,7 +303,7 @@ describe('waitForTap', function () {
         events.publish(TOPIC_COLLISION, {xImpact: 1, yImpact: 2, speed: 50});
       }, 250);
 
-      execute(mySphero, [['waitForTap', 1]], function () {
+      execute(mySphero, parse('waitForTap 1'), function () {
         var now2 = Date.now();
         console.log(now2 - now);
         now2.should.be.above(now + 250);
@@ -377,7 +321,7 @@ describe('repeat', function () {
   it('should call a block of commands multiple times', function (done) {
     var mySphero = getMockSphero();
 
-    execute(mySphero, [['repeat', 2, [['color', 'red'], ['stop']]]], function () {
+    execute(mySphero, parse('repeat 2 times {\n  color "blue"\n  stop\n}'), function () {
       mySphero.setColor.callCount.should.equal(2);
       mySphero.roll.callCount.should.equal(3);  // exec calls it once every time, so 2 + 1 = 3
       done();
@@ -392,7 +336,7 @@ describe('gosub', function () {
   it('should call a named sub that appears at end of code', function (done) {
     var mySphero = getMockSphero();
 
-    execute(mySphero, [['gosub', 'myTestSub'], ['sub', 'myTestSub', [['color', 'red'], ['stop']]]], function () {
+    execute(mySphero, parse('gosub myTestSub\n sub myTestSub{\n  color "yellow"\n  go\n}'), function () {
       mySphero.setColor.callCount.should.equal(1);
       mySphero.roll.callCount.should.equal(2);  // exec calls it once every time, so 2 + 1 = 3
       done();
@@ -402,7 +346,7 @@ describe('gosub', function () {
   it('should call a named sub that appears at start of code', function (done) {
     var mySphero = getMockSphero();
 
-    execute(mySphero, [['sub', 'myTestSub', [['color', 'red'], ['stop']]], ['gosub', 'myTestSub']], function () {
+    execute(mySphero, parse('sub myTestSub{\n  color "yellow"\n  go\n}\ngosub myTestSub\n'), function () {
       mySphero.setColor.callCount.should.equal(1);
       mySphero.roll.callCount.should.equal(2);  // exec calls it once every time, so 2 + 1 = 3
       done();
@@ -420,7 +364,7 @@ describe('stop', function () {
     state.defaultSpeed = 35;
     state.speed = 35;
 
-    execute(mySphero, [['stop']], function () {
+    execute(mySphero, parse('stop'), function () {
       mySphero.roll.callCount.should.equal(2);
       mySphero.roll.calledWith(0, 75).should.equal(true);
       state.speed.should.equal(0);
@@ -437,7 +381,7 @@ describe('pointMe', function () {
   it('should be able to start calibration mode', function (done) {
     var mySphero = getMockSphero();
 
-    execute(mySphero, [['pointMe']], function () {
+    execute(mySphero, parse('pointMe'), function () {
       mySphero.startCalibration.callCount.should.equal(1);
       done();
     });
@@ -452,7 +396,7 @@ describe('color', function () {
     var mySphero = getMockSphero();
     state.color = 0xffffff;
 
-    execute(mySphero, [['color', 'red']], function () {
+    execute(mySphero, parse("color 'red'"), function () {
       mySphero.setColor.calledOnce.should.equal(true);
       mySphero.setColor.calledWith(0xff0000).should.equal(true);
       state.color.should.equal(0xff0000);
@@ -465,7 +409,7 @@ describe('color', function () {
       var mySphero = getMockSphero();
       state.color = 0xffffff;
 
-      execute(mySphero, [['flash', 'blue']], function () {
+      execute(mySphero, parse("flash 'blue'"), function () {
         mySphero.setColor.calledOnce.should.equal(true);
         mySphero.setColor.calledWith(0x0000ff).should.equal(true);
         setTimeout(function () {
@@ -483,7 +427,7 @@ describe('color', function () {
       var mySphero = getMockSphero();
       state.color = 0xffffff;
 
-      execute(mySphero, [['pulse', 'green']], function () {
+      execute(mySphero, parse('pulse "green"'), function () {
         mySphero.setColor.calledOnce.should.equal(true);
         setTimeout(function () {
           mySphero.setColor.callCount.should.equal(18);
@@ -507,7 +451,7 @@ describe('wait', function () {
 
       var now = Date.now();
 
-      execute(mySphero, [['wait', 1]], function () {
+      execute(mySphero, parse('wait 1'), function () {
         var now2 = Date.now();
         now2.should.be.above(now + 1000);
         now2.should.not.be.above(now + 1250); // 250ms wiggle room for other code execution time
@@ -563,7 +507,7 @@ describe('go', function () {
     state.heading = 75;
     state.defaultSpeed = 35;
 
-    execute(mySphero, [['go']], function () {
+    execute(mySphero, parse('go'), function () {
       mySphero.roll.callCount.should.equal(2);
       state.speed.should.equal(35);
       state.heading.should.equal(75);
@@ -578,7 +522,7 @@ describe('go', function () {
 
       var now = Date.now();
 
-      execute(mySphero, [['go', 1]], function () {
+      execute(mySphero, parse('go 1'), function () {
         var now2 = Date.now();
         now2.should.be.above(now + 1000);
         now2.should.not.be.above(now + 1250); // 250ms wiggle room for other code execution time
@@ -599,7 +543,7 @@ describe('turn', function () {
     var mySphero = getMockSphero();
     state.heading = 0;
 
-    execute(mySphero, [['right']], function () {
+    execute(mySphero, parse('right'), function () {
       state.heading.should.equal(90);
       mySphero.roll.calledOnce.should.equal(false);
       done();
@@ -610,7 +554,7 @@ describe('turn', function () {
     var mySphero = getMockSphero();
     state.heading = 0;
 
-    execute(mySphero, [['right', 45]], function () {
+    execute(mySphero, parse('right 45'), function () {
       state.heading.should.equal(45);
       mySphero.roll.calledOnce.should.equal(false);
       done();
@@ -621,7 +565,7 @@ describe('turn', function () {
     var mySphero = getMockSphero();
     state.heading = 0;
 
-    execute(mySphero, [['left']], function () {
+    execute(mySphero, parse('left'), function () {
       state.heading.should.equal(270);
       mySphero.roll.calledOnce.should.equal(false);
       done();
@@ -632,7 +576,7 @@ describe('turn', function () {
     var mySphero = getMockSphero();
     state.heading = 0;
 
-    execute(mySphero, [['left', 30]], function () {
+    execute(mySphero, parse('left 30'), function () {
       state.heading.should.equal(330);
       mySphero.roll.calledOnce.should.equal(false);
       done();
@@ -643,7 +587,7 @@ describe('turn', function () {
     var mySphero = getMockSphero();
     state.heading = 0;
 
-    execute(mySphero, [['turn', -90]], function () {
+    execute(mySphero, parse('turn -90'), function () {
       state.heading.should.equal(270);
       mySphero.roll.calledOnce.should.equal(false);
       done();
@@ -654,7 +598,7 @@ describe('turn', function () {
     var mySphero = getMockSphero();
     state.heading = 0;
 
-    execute(mySphero, [['turn', 45]], function () {
+    execute(mySphero, parse('turn 45'), function () {
       state.heading.should.equal(45);
       mySphero.roll.calledOnce.should.equal(false);
       done();
@@ -665,7 +609,7 @@ describe('turn', function () {
     var mySphero = getMockSphero();
     state.heading = 45;
 
-    execute(mySphero, [['reverse']], function () {
+    execute(mySphero, parse('reverse'), function () {
       state.heading.should.equal(225);
       mySphero.roll.calledOnce.should.equal(false);
       done();
@@ -676,7 +620,7 @@ describe('turn', function () {
     var mySphero = getMockSphero();
     state.heading = 225;
 
-    execute(mySphero, [['reverse']], function () {
+    execute(mySphero, parse('reverse'), function () {
       state.heading.should.equal(45);
       mySphero.roll.calledOnce.should.equal(false);
       done();
@@ -693,7 +637,7 @@ describe('speed', function () {
     state.speed = 0;
     state.defaultSpeed = 50;
 
-    execute(mySphero, [['speed', 10]], function () {
+    execute(mySphero, parse('speed 10'), function () {
       state.defaultSpeed.should.equal(25);
       state.speed.should.equal(0);
       mySphero.roll.calledOnce.should.equal(true);
@@ -704,7 +648,7 @@ describe('speed', function () {
   it('should be able to set various default speeds', function (done) {
     var mySphero = getMockSphero();
 
-    execute(mySphero, [['speed', 100]], function () {
+    execute(mySphero, parse('speed 100'), function () {
       state.defaultSpeed.should.equal(255);
       state.speed.should.equal(0);
       mySphero.roll.calledOnce.should.equal(true);

@@ -11,6 +11,8 @@ var events = require('./events');
 var _ = require('lodash');
 
 var TOPIC_COLLISION = 'collision';
+var UNKNOWN_LINE_RUNNING = 'unknown line';
+var LINE_RUNNING = 'line running';
 
 var subroutines = {};
 
@@ -621,7 +623,8 @@ function compareGreaterThanEquals(a, b) {
 // -------- parse and execute lines of Rollo code
 
 function hoistSubroutines(lines) {
-  return _.filter(lines, function (line) {
+  return _.filter(lines, function (lineObject) {
+    var line = lineObject.line;
     var cmd = line[0];
     var params = line.slice(1);
     if (cmd === 'sub') {
@@ -633,14 +636,17 @@ function hoistSubroutines(lines) {
   });
 }
 
-function executeLine(line, callback) {
+function executeLine(lineObject, callback) {
+  var line = lineObject.line;
   var cmd = line[0];
   var params = line.slice(1);
   if (commands.hasOwnProperty(cmd)) {
     state.cmdCount++;
+    events.publish(LINE_RUNNING, convertCollisionData(data.DATA));
     return commands[cmd].call(this, params, callback);
   } else {
     state.unknownCmdCount++;
+    events.publish(UNKNOWN_LINE_RUNNING, convertCollisionData(data.DATA));
     console.log("Rollo: Unsupported command -> " + cmd);
     return callback();
   }
