@@ -231,40 +231,46 @@ The real commands are as follows:
 
 ### Movement
 
+#####GO
 **_go_** [**duration**:number]
 
 Makes the sphero start rolling.  If no duration is specified, it will keep going until stopped with a **stop** command.  If a duration is
 given, then it will automatically stop after that many seconds have passed.
 
+#####TURN
 _**turn**_ **degrees**:number
 
 Changes the heading that the Sphero is travelling.  If moving, it will cause an immediate turn.  If still, it will adjust the heading used the next time the Sphero moves.  The degrees can be specified as a postive (clockwiswe) number or as a negative (counterclockwise) number.
 
+#####RIGHT
 _**right**_ [**degrees**:number]
 
 Changes the current or next heading of the Sphero.  Accepts only positive numbers.  For example, "right 45" will cause the Sphero to veer off to the right.  If no degree parameter is specified, the Sphero will turn 90 degrees.
 
 Alias: *turnRight*
 
+#####LEFT
 _**left**_ [**degrees**:number]
 
 As with **right**, changes the current or next heading of the Sphero, except in the opposite direction.  For example, "left 45" will cause the Sphero to veer to the left.  If no degree parameter is specified, the Sphero will turn 90 degrees.
 
 Alias: *turnLeft*
 
+#####REVERSE
 _**reverse**_
 
 Causes the Sphero's heading to shift 180 degrees so that it will move in the opposite direction from where it is currently heading.
 
 Alias: *turnAround*
 
-
+#####SPEED
 **_speed_** **percent**:number
 
 Sets the percentage of full speed the sphero will use when moving
 
 ### Variable Assignment
 
+#####LET
 _**let**_ **name**:variable_label = **expression**
 
 The **let** commands allows a value to be assigned to a numeric variable.  All numeric variables in Rollo must start with the $ character and be followed by one or more letters or numbers.  The expression that is evaluated and assigned to the variable can consist of numbers or other variables and make use of addition, subtraction, multiplication, and division.  Parenthese may also be used.
@@ -279,12 +285,14 @@ Expressions need not be complex.  For example, the following line of code assign
 
 ### Flow Control
 
+#####GOSUB
 _**gosub**_ **name**:sub_label
 
 Causes Rollo to execute the named **sub** one time.  Unlike strings, labels should not be enclosed inside of double or single quotes.
 
 Alias: *call*
 
+#####IF
 _**if**_ **condition_expression** { block_of_commands }
 
 The **if** command allows a block of commands to be executed only if the expression passed to it is evaluated to be true.  Consider the following example, which will set the Sphero's color to yellow only if the value of the variable $test is greater than 10:
@@ -299,6 +307,7 @@ Condition expressions consist of two mathematical expressions (which may or may 
         color 'yellow'
     }
 
+#####REPEAT
 _**repeat**_ count:number { block_of_commands }
 
 The **repeat** command causes the group of lines inside the curly braces { } to be repeated the specified number of times.  For example, the following will cause the Sphero to drive in a square:
@@ -310,6 +319,7 @@ The **repeat** command causes the group of lines inside the curly braces { } to 
 
 Alias: *loop*
 
+#####SUB
 _**sub**_ **name**:sub_label { block_of_commands }
 
 The **sub** command defines a named block of commands that can be executed by using the **gosub** command.  The **sub** command can only be used in the root level of the Rollo program, meaning that it cannot be used inside of any sort of block of code (though the **gosub** command that calls it certainly can).  Unlike with strings, a label should have neither single nor double quotes around it.
@@ -321,12 +331,14 @@ Here's an example sub named 'mySub' that causes the Sphero to go straight and th
         reverse
     }
 
+#####WAIT
 **_wait_** **duration**:number
 
 Tells Rollo to wait for a specified number of seconds before continuing.
 
 Alias: *delay*
 
+#####WAITFORTAP
 **_waitForTap_** [**timeout**:number]
 
 Causes the Rollo to wait until the Sphero has been hit by something (like a hand) or runs solidly into something (like a wall).
@@ -334,6 +346,7 @@ The optional timeout parameter tells Rollo how many seconds it should wait for a
 
 Alias: *waitForHit*
 
+#####WHILE
 _**while**_ **condition**:expression { block_of_commands }
 
 The **while** command can be thought of as a combination of the **if** and **repeat** commands.  The code inside of the block will continue to repeat as long as the condition specified evaluates to true.  The following example will cause the Sphero to move and turn three times:
@@ -351,6 +364,7 @@ See **if** for more information on comparison expressions.
 
 ### Color
 
+#####COLOR
 _**color**_ **color_name**:string|color_value:hexadecimal
 
 Sets the color of the Sphero.  If supplied a known string, such as "red" or 'green' or 'darkblue', Rollo will change the Sphero color accordingly.  If supplied a hexadecimal number, it will change to the color specified by the value.  Rollo understands HTML CSS-like colors, in that 0xff0000 is red, 0x00ff00 is green, and 0x0000ff is blue.
@@ -361,12 +375,14 @@ To set the Sphero to purple, you would use either of the following commands:
     
 Rollo currently understands the following colors: red, darkred, green, darkgreen, blue, darkblue, orange, darkorange, purple, darkpurple, yellow, darkyellow, white, gray, darkgray, or none or off for no light at all.
 
+#####FLASH
 _**flash**_ **color_name**:string|color_value:hexadecimal
 
 Causes the Sphero to shine the specified color for one second before reverting back to its original color.  Unlike most commands in Rollo that have a duration, the **flash** command does not cause Rollo to wait for it to finish before it proceeds.  This means that you can issue a flash on an impact, for example, and the color change will take place while you might be instructing Rollo to reverse direction.
 
 **Flash** uses the same color parameters as the **color** command.
 
+#####PULSE
 _**pulse**_ **color_name**:string|color_value:hexadecimal
 
 Nearly identical to **flash**, except that the chosen color fades in and out for a more subtle effect.
@@ -376,6 +392,7 @@ Nearly identical to **flash**, except that the chosen color fades in and out for
 
 ### Utility
 
+#####POINTME
 _**pointMe**_
 
 Causes the Sphero to go into calibration mode with a blue light shining in the opposite direction that it will move.  Calibration mode is automatically stopped once a **go** command is received.  It is often useful to follow the **pointMe** command with a **waitForTap** command so that the Sphero can be oriented and then tapped to tell the Rollo program to continue.  For example:
@@ -388,6 +405,7 @@ This example will cause the Sphero to go into calibration mode and wait for a ta
 
 Alias: *ALIAS*
 
+#####SAY
 _**say**_ **text**:string
 
 The say command causes Rollo to output text.  This can be used to help with debugging.
