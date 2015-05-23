@@ -446,6 +446,8 @@ _**say**_ *text*:string
 
 The say command causes Rollo to output text.  This can be used to help with debugging.
 
+    say 'This will go to the log'
+
 Alias: *log*
 
 ## Rollo functions
