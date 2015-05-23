@@ -128,6 +128,48 @@ describe('parse', function () {
   });
 });
 
+describe('functions', function () {
+  var execute = require('../lib/rolloExec').execute;
+  var state = require('../lib/rolloExec').state;
+  var variables = require('../lib/rolloExec').variables;
+
+  it('should return the getSpeed() value', function (done) {
+    var mySphero = getMockSphero();
+    delete variables['$var1'];
+    state.speed = 23;
+
+    execute(mySphero, parse('let $var1 = getSpeed()'),
+      function () {
+        variables['$var1'].should.equal(23);
+        done();
+      });
+  });
+
+  it('should return the getHeading() value', function (done) {
+    var mySphero = getMockSphero();
+    delete variables['$var1'];
+    state.heading = 42;
+
+    execute(mySphero, parse('let $var1 = getHeading()'),
+      function () {
+        variables['$var1'].should.equal(42);
+        done();
+      });
+  });
+
+  it('should return the getDefaultSpeed() value', function (done) {
+    var mySphero = getMockSphero();
+    delete variables['$var1'];
+    state.defaultSpeed = 3.1415;
+
+    execute(mySphero, parse('let $var1 = getDefaultSpeed()'),
+      function () {
+        variables['$var1'].should.equal(3.1415);
+        done();
+      });
+  });
+});
+
 describe('while', function () {
   var execute = require('../lib/rolloExec').execute;
   var state = require('../lib/rolloExec').state;
@@ -135,8 +177,45 @@ describe('while', function () {
 
   it('should loop until the condition is true', function (done) {
     var mySphero = getMockSphero();
+    delete variables['$var1'];
 
     execute(mySphero, parse('while $var1 < 3 {\n  let $var1 = $var1 + 1\n  color "blue"\n}'),
+      function () {
+        variables['$var1'].should.equal(3);
+        mySphero.setColor.callCount.should.equal(3);
+        done();
+      });
+  });
+});
+
+describe('do ... while', function () {
+  var execute = require('../lib/rolloExec').execute;
+  var state = require('../lib/rolloExec').state;
+  var variables = require('../lib/rolloExec').variables;
+
+  it('should loop until the condition is true', function (done) {
+    var mySphero = getMockSphero();
+    delete variables['$var1'];
+
+    execute(mySphero, parse('do {\n  let $var1 = $var1 + 1\n  color "blue"\n} while $var1 < 3\n'),
+      function () {
+        variables['$var1'].should.equal(3);
+        mySphero.setColor.callCount.should.equal(3);
+        done();
+      });
+  });
+});
+
+describe('do ... until', function () {
+  var execute = require('../lib/rolloExec').execute;
+  var state = require('../lib/rolloExec').state;
+  var variables = require('../lib/rolloExec').variables;
+
+  it('should loop until the condition is true', function (done) {
+    var mySphero = getMockSphero();
+    delete variables['$var1'];
+
+    execute(mySphero, parse('do {\n  let $var1 = $var1 + 1\n  color "blue"\n} until $var1 > 2 '),
       function () {
         console.log('count: ' + mySphero.setColor.callCount);
         variables['$var1'].should.equal(3);
@@ -144,7 +223,6 @@ describe('while', function () {
         done();
       });
   });
-
 });
 
 describe('if', function () {
