@@ -57,61 +57,119 @@ The following Rollo program will cause the Sphero to make a 'C' shape, reverse d
 
 ## Rollo syntax
 
-Rollo is a simple language that is intended for kids and non-programmers.
-Commands are meant to be simple to understand and offer flexible syntax.
-The main structure is the command followed by 0 or more parameters.  For example:
+Rollo is a simple language that is intended for kids and non-programmers. Commands are meant to be simple to understand and offer flexible syntax. The main structure is the command followed by 0 or more parameters.  For example:
 
     right
     
 This causes the sphero to turn right.
+
+#####Optional Parameters
 
 Commands that take parameters often take optional units for those parameters that may be omitted:
 
     wait 1    
     wait 1 second
 
-Those two lines are equivilent.  Basically units (seconds, degrees, times, %, and such) are ignored, so you can use them if they help make more sense to you, but Rollo doesn't
-care either way.
+Those two lines are equivilent.  Basically units (seconds, degrees, times, %, and such) are ignored, so you can use them if they help make more sense to you, but Rollo doesn't care either way.
 
-Numbers and words are handled differently in Rollo, as in most languages.  If a parameter that you are
-giving to a command is a number, you can just type in the number (and the optional units).  If the parameter
-is made up of words, though, you have to put them in quotes.  You can use single or double quotes:
+#####Words (strings) versus Numbers
+
+Numbers and words are handled differently in Rollo, as in most languages.  If a parameter that you are giving to a command is a number, you can just type in the number (and the optional units).  If the parameter is made up of words, though, you have to put them in quotes.  You can use single or double quotes:
 
     color 'green'
     color "orange"
 
-Both of those set the spher's color and work fine.  This one, however, is not fine:
+Both of those set the Sphero's color and work fine.  This one, however, is not fine:
 
     color 'green"
     
-You can't mix and match quotes.  If you start with a ', you must end with '.  Same goes for ".
+You can't mix and match quotes.  If you start with a ', you must end with '.  The same goes for ".
 
-It might seem silly to have to put quotes around word parameters like 'green' and 'orange', but it makes more
-sense when your words have spaces in them:
+It might seem silly to have to put quotes around word parameters like 'green' and 'orange', but it makes more sense when your words have spaces in them:
 
     say "This will show up on the output log"
     
-The say command, for instance, can have full sentences passed to it, which then get displayed in the output log.
-If we didn't have the quotes, it would make something like the following hard for Rollo to interpret:
+The say command, for instance, can have full sentences passed to it, which then get displayed in the output log. If we didn't have the quotes, it would make something like the following hard for Rollo to interpret:
 
-    say "We are going to wait 1 second"
+    say We are going to wait 1 second
     
-Rollo would get confused without the quotes because it would see the "wait 1 second" and might think it was a command.
-The quotes tell Rollo that the words all belong together, even if some of the are numbers.
+Rollo would get confused without the quotes because it would see the "wait 1 second" and might think it was a command. The quotes tell Rollo that the words all belong together, even it contains spaces or some of the words are actually numbers.
 
-There are some commands, like 'repeat' that make use of curly braces to show that they control a block, or group, of commands:
+#####Command Blocks
 
+There are some commands, like 'repeat' and 'if' (among others) that make use of curly braces to show that they control a block, or group, of commands:
+ 
     repeat 2 times {
       right
       wait 1 second
     }
     
-This tells Rollo to turn right and wait a second, and do that process twice.
-The indentation for the lines inside the curly braces is entirely optional, but it
-makes the code much easier to read if you use some form of consistent indentation.
+This tells Rollo to turn right and wait a second, and do that process twice. The indentation for the lines inside the curly braces is entirely optional, but it makes the code much easier to read if you use some form of consistent indentation.
 
-There are also subroutines in Rollo.  A subroutine is a group of lines that have a label
-(or name) associated with them that can then be run as a group.  For example.
+Rollo is pretty flexible on where you place your curly braces.  You can put them on the same line as an expression like this:
+ 
+    if $var < 4 {
+        color 'red'
+    } else {
+        color 'green'
+    }
+
+Or you can put them on their own lines, as in this example:
+
+    if $var < 4 
+    {
+        color 'red'
+    } 
+    else 
+    {
+        color 'green'
+    }
+
+You can even indent them as you please:
+
+    if $var < 4 
+      {
+        color 'red'
+      } 
+    else 
+      {
+        color 'green'
+      }
+
+But however you decide to do it, you should always do it the same way. This makes your program easier for everybody, including you, to read.
+ 
+ #####Condition Expressions
+ 
+ You might have noticed that the 'if' command examples above have an expression after the 'if' that makes use of some math.  Those are examples of condition expressions in Rollo.
+ 
+Condition Expressions can make use of the following comparison operators:
+
+Equality: **==** or **===** or or **equal to** or **equals**
+
+Inequality: **!=** or **!==** or **not equal** or **not equals**
+
+Less than or equal: **<=**
+
+Greater than or equal: **>=**
+
+Less than: **<** or **less than**
+
+Greater than: **>** or **greater than** OR **more than**
+
+You can also use 'is' before the comparison.  So these are all valid and mean the same thing:
+
+    2 == 1 + 1
+    2 === 3 - 1
+    2 is equal to 6 / 3
+    2 equals 5 - 3
+
+You can even do the following, though it looks quite strange:
+
+    2 is == 8 / (2 * 2)
+
+#####Subroutines
+ 
+There are also subroutines in Rollo.  A subroutine is a group of lines that have a label (or name) associated with it that can then be run by referring to that name.  For example.
 
     sub myStuff {
       flash 'red'
@@ -136,11 +194,9 @@ This defines a block of sub (a block of code) called "myStuff" that can be run w
       wait 2 seconds
     }
     
-What this will do is change the sphero's color to blue, start rolling, and then call the sub myStuff 6 times.
-Each time myStuff is called with the gosub command, the sphero will turn right, flash red, and then wait 2 seconds.
-Finally, the sphero will turn green and stop rolling after myStuff has been run the sixth time.
+What this will do is change the sphero's color to blue, start rolling, and then call the sub myStuff 6 times. Each time myStuff is called with the gosub command, the sphero will turn right, flash red, and then wait 2 seconds. Finally, the sphero will turn green and stop rolling after myStuff has been run the sixth time.
 
-The above program does exactly the same thing as the following, but is a lot shorter and easier to maintain that this mess:
+The above program does exactly the same thing as the following, but is shorter and easier to read than this mess:
 
     color 'blue'
     go
@@ -167,10 +223,9 @@ The above program does exactly the same thing as the following, but is a lot sho
     color 'green'
     stop
 
-Subs can be put anywhere in your program _as long as they are not inside a block_.  The gosub command that
-calls a sub can, of course, be inside a block.  With that in mind, consider the following examples:
+Subs can be put anywhere in your program _as long as they are not inside a block_.  The gosub command that calls a sub can, of course, be inside a block.  With that in mind, consider the following examples:
 
-### This is valid
+###### This is valid
 
     sub myStuff {
       flash 'red'
@@ -185,7 +240,7 @@ calls a sub can, of course, be inside a block.  With that in mind, consider the 
 
     color 'green'
 
-### This is valid, too, and does the exact same thing
+###### This is valid, too, and does the exact same thing
 
     color 'blue'
 
@@ -200,7 +255,7 @@ calls a sub can, of course, be inside a block.  With that in mind, consider the 
       wait 2 seconds
     }
 
-### This is NOT valid because the sub is inside the repeat block
+###### This is NOT valid because the sub is inside the repeat block
 
     color 'blue'
 
@@ -237,18 +292,6 @@ The real commands are as follows:
 Makes the sphero start rolling.  If no duration is specified, it will keep going until stopped with a **stop** command.  If a duration is
 given, then it will automatically stop after that many seconds have passed.
 
-#####TURN
-_**turn**_ *degrees*:number
-
-Changes the heading that the Sphero is travelling.  If moving, it will cause an immediate turn.  If still, it will adjust the heading used the next time the Sphero moves.  The degrees can be specified as a postive (clockwiswe) number or as a negative (counterclockwise) number.
-
-#####RIGHT
-_**right**_ [*degrees*:number]
-
-Changes the current or next heading of the Sphero.  Accepts only positive numbers.  For example, "right 45" will cause the Sphero to veer off to the right.  If no degree parameter is specified, the Sphero will turn 90 degrees.
-
-Alias: *turnRight*
-
 #####LEFT
 _**left**_ [*degrees*:number]
 
@@ -263,10 +306,22 @@ Causes the Sphero's heading to shift 180 degrees so that it will move in the opp
 
 Alias: *turnAround*
 
+#####RIGHT
+_**right**_ [*degrees*:number]
+
+Changes the current or next heading of the Sphero.  Accepts only positive numbers.  For example, "right 45" will cause the Sphero to veer off to the right.  If no degree parameter is specified, the Sphero will turn 90 degrees.
+
+Alias: *turnRight*
+
 #####SPEED
 **_speed_** *percent*:number
 
 Sets the percentage of full speed the sphero will use when moving
+
+#####TURN
+_**turn**_ *degrees*:number
+
+Changes the heading that the Sphero is travelling.  If moving, it will cause an immediate turn.  If still, it will adjust the heading used the next time the Sphero moves.  The degrees can be specified as a postive (clockwiswe) number or as a negative (counterclockwise) number.
 
 ### Variable Assignment
 
@@ -343,6 +398,17 @@ Condition expressions consist of two mathematical expressions (which may or may 
         color 'yellow'
     }
 
+#####IF ELSE
+_**if**_ *condition*:expression** { block-of-commands } _**else**_ { block-of-commands }
+
+Same as the regular **if** command, except that there is a second block of lines that is run if the **if** condition expression is false.  Consider the following example, which will set the Sphero's color to yellow if the value of the variable $test is greater than 10, otherwise it will set the color to red:
+
+    if $test > 10 {
+        color 'yellow'
+    } else {
+        color 'red'
+    }
+    
 #####REPEAT
 _**repeat**_ *count*:number { block-of-commands }
 
