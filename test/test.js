@@ -64,62 +64,67 @@ describe('parse', function () {
 
   it('should parse a conditional > block', function () {
     parse('if 2 > 4 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']]]]);
+      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']],[]]]);
     parse('if 2 greater than 4 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']]]]);
+      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']],[]]]);
     parse('if 2 is greater than 4 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']]]]);
+      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']],[]]]);
     parse('if 2 more than 4 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']]]]);
+      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']],[]]]);
     parse('if 2 is more than 4 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']]]]);
+      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']],[]]]);
   });
 
   it('should parse a conditional < block', function () {
     parse('if 5 < 2 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['<', 5, 2], [['stop'], ['go']]]]);
+      .should.deep.equal([['if', ['<', 5, 2], [['stop'], ['go']],[]]]);
     parse('if 5 less than 2 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['<', 5, 2], [['stop'], ['go']]]]);
+      .should.deep.equal([['if', ['<', 5, 2], [['stop'], ['go']],[]]]);
     parse('if 5 is less than 2 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['<', 5, 2], [['stop'], ['go']]]]);
+      .should.deep.equal([['if', ['<', 5, 2], [['stop'], ['go']],[]]]);
   });
 
   it('should parse a conditional == block', function () {
     parse('if 1 == 7 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']]]]);
+      .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']],[]]]);
     parse('if 1 === 7 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']]]]);
+      .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']],[]]]);
     parse('if 1 equals 7 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']]]]);
+      .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']],[]]]);
     parse('if 1 is equal to 7 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']]]]);
+      .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']],[]]]);
   });
 
   it('should parse a conditional != block', function () {
     parse('if 1 != 7 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']]]]);
+      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']],[]]]);
     parse('if 1 !== 7 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']]]]);
+      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']],[]]]);
     parse('if 1 not equals 7 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']]]]);
+      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']],[]]]);
     parse('if 1 is not equal to 7 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']]]]);
+      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']],[]]]);
   });
 
   it('should parse a conditional >= block', function () {
     parse('if 10 >= 11 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['>=', 10, 11], [['stop'], ['go']]]]);
+      .should.deep.equal([['if', ['>=', 10, 11], [['stop'], ['go']],[]]]);
   });
 
   it('should parse a conditional <= block', function () {
     parse('if 10 <= 11 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['<=', 10, 11], [['stop'], ['go']]]]);
+      .should.deep.equal([['if', ['<=', 10, 11], [['stop'], ['go']],[]]]);
   });
 
   it('should parse a conditional block with a complex comparison', function () {
     //console.log("Object: " + JSON.stringify(parse('if 10 >= 2 + 3 {\nstop\ngo\n}')));
     parse('if 10 >= 2 + 3 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([["if", [">=", 10, ["+", [2, 3]]], [["stop"], ["go"]]]]);
+      .should.deep.equal([["if", [">=", 10, ["+", [2, 3]]], [["stop"], ["go"]],[]]]);
+  });
+
+  it('should parse an if ... else', function () {
+    parse('if 10 >= 11 {\nstop\n}\nelse {\ngo\n}').map(linesOnly)
+      .should.deep.equal([['if', ['>=', 10, 11], [['stop']],[['go']]]]);
   });
 
   it('should parse a sub and gosub', function () {
@@ -190,7 +195,6 @@ describe('while', function () {
 
 describe('do ... while', function () {
   var execute = require('../lib/rolloExec').execute;
-  var state = require('../lib/rolloExec').state;
   var variables = require('../lib/rolloExec').variables;
 
   it('should loop until the condition is true', function (done) {
@@ -208,7 +212,6 @@ describe('do ... while', function () {
 
 describe('do ... until', function () {
   var execute = require('../lib/rolloExec').execute;
-  var state = require('../lib/rolloExec').state;
   var variables = require('../lib/rolloExec').variables;
 
   it('should loop until the condition is true', function (done) {
@@ -248,6 +251,19 @@ describe('if', function () {
       console.log('count: ' + mySphero.setColor.callCount);
       mySphero.setColor.callCount.should.equal(0);
       mySphero.roll.callCount.should.equal(1);
+      done();
+    });
+  });
+
+  it('should run an else block when false', function (done) {
+    var mySphero = getMockSphero();
+    var state = require('../lib/rolloExec').state;
+
+    execute(mySphero, parse('if 10 <= 9 {\ncolor "red"\n go\n}\nelse {\nspeed 50\n}\n'), function () {
+      console.log('count: ' + mySphero.setColor.callCount);
+      mySphero.setColor.callCount.should.equal(0);
+      mySphero.roll.callCount.should.equal(1);
+      state.defaultSpeed.should.equal(127);
       done();
     });
   });
