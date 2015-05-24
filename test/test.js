@@ -129,7 +129,18 @@ describe('parse', function () {
 
   it('should parse a sub and gosub', function () {
     parse('gosub mySub\nsub mySub {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([["gosub", "mySub"], ["sub", "mySub", [["stop"], ["go"]]]]);
+      .should.deep.equal([["gosub", "mysub"], ["sub", "mysub", [["stop"], ["go"]]]]);
+  });
+
+  it('should parse regardless of case', function () {
+    parse('iF 1 != 7 {\nsTOp\nGo\n}').map(linesOnly)
+      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']],[]]]);
+    parse('IF 1 !== 7 {\nSTOP\nGO\n}').map(linesOnly)
+      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']],[]]]);
+    parse('If 1 NOT EQuals 7 {\nstOP\nGO\n}').map(linesOnly)
+      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']],[]]]);
+    parse('if 1 IS nOt EquAL to 7 {\nSTOP\ngo\n}').map(linesOnly)
+      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']],[]]]);
   });
 });
 
@@ -560,6 +571,18 @@ describe('color', function () {
     });
   });
 
+  it('should be able to set the color with mixed case', function (done) {
+    var mySphero = getMockSphero();
+    state.color = 0xffffff;
+
+    execute(mySphero, parse("color 'rED'"), function () {
+      mySphero.setColor.calledOnce.should.equal(true);
+      mySphero.setColor.calledWith(0xff0000).should.equal(true);
+      state.color.should.equal(0xff0000);
+      done();
+    });
+  });
+
   if (doSlowTests) {
     it('should be able to flash the color', function (done) {
       var mySphero = getMockSphero();
@@ -626,11 +649,11 @@ describe('command aliases', function () {
   });
 
   it('should use turnRight as an alias for right', function () {
-    commands.right.should.equal(commands.turnRight);
+    commands.right.should.equal(commands.turnright);
   });
 
   it('should use turnLeft as an alias for left', function () {
-    commands.left.should.equal(commands.turnLeft);
+    commands.left.should.equal(commands.turnleft);
   });
 
   it('should use log as an alias for say', function () {
@@ -638,11 +661,11 @@ describe('command aliases', function () {
   });
 
   it('should use waitForHit as an alias for waitForTap', function () {
-    commands.waitForHit.should.equal(commands.waitForTap);
+    commands.waitforhit.should.equal(commands.waitfortap);
   });
 
   it('should use turnAround as an alias for reverse', function () {
-    commands.turnAround.should.equal(commands.reverse);
+    commands.turnaround.should.equal(commands.reverse);
   });
 
   it('should use loop as an alias for repeat', function () {
