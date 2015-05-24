@@ -138,23 +138,23 @@ You can even indent them as you please:
 
 But however you decide to do it, you should always do it the same way. This makes your program easier for everybody, including you, to read.
  
- #####Condition Expressions
+#####Condition Expressions
  
- You might have noticed that the 'if' command examples above have an expression after the 'if' that makes use of some math.  Those are examples of condition expressions in Rollo.
+You might have noticed that the 'if' command examples above have an expression after the 'if' that makes use of some math.  Those are examples of condition expressions in Rollo.
  
 Condition Expressions can make use of the following comparison operators:
 
-Equality: **==** or **===** or or **equal to** or **equals**
+_Equality_: **==** or **===** or **equal to** or **equals**
 
-Inequality: **!=** or **!==** or **not equal** or **not equals**
+_Inequality_: **!=** or **!==** or **not equal** or **not equals**
 
-Less than or equal: **<=**
+_Less than or equal_: **<=**
 
-Greater than or equal: **>=**
+_Greater than or equal_: **>=**
 
-Less than: **<** or **less than**
+_Less than_: **<** or **less than**
 
-Greater than: **>** or **greater than** OR **more than**
+_Greater than_: **>** or **greater than** OR **more than**
 
 You can also use 'is' before the comparison.  So these are all valid and mean the same thing:
 
@@ -438,13 +438,16 @@ Here's an example sub named 'mySub' that causes the Sphero to go straight and th
 
 Tells Rollo to wait for a specified number of seconds before continuing.
 
+    wait 2 seconds
+
 Alias: *delay*
 
 #####WAITFORTAP
 **_waitForTap_** [**timeout**:number]
 
-Causes the Rollo to wait until the Sphero has been hit by something (like a hand) or runs solidly into something (like a wall).
-The optional timeout parameter tells Rollo how many seconds it should wait for a tap before it gives up and moves on to the next command.
+Causes the Rollo to wait until the Sphero has been hit by something (like a hand) or runs solidly into something (like a wall). The optional timeout parameter tells Rollo how many seconds it should wait for a tap before it gives up and moves on to the next command.
+
+    waitForTap 8 seconds
 
 Alias: *waitForHit*
 
