@@ -192,9 +192,33 @@ You can even indent them as you please:
 
 But however you decide to do it, you should always do it the same way. This makes your program easier for everybody, including you, to read.
 
+#### Expressions
+
+Expressions in Rollo are basically math questions.  The simplest example is probably this:
+
+    1
+
+It is a valid math expression that has the value of 1.  Expressions become more useful, though, when combined with math operators and multiple numbers.  Take a look at this example, which has the value of 5:
+
+    2 + 3 * (5 - 3) / 2
+    
+That expression means "2 plus 3 times the difference of 5 and 3, divided by 2".  Just keep in mind that multiplication and division get done before addition and subtraction in general, but that parentheses come first.  That's just regular math rules, not part of Rollo.  So you might want to think of that expression as saying "Take 5 - 3 and multiply the difference by 3 and then divide it by 2 and add 2"
+
+Rollo currently only supports '+', '-', '*', and '/' for expressions.
+
+#### Variables
+
+A variable in Rollo is a name that starts with a dollar sign ($) that holds a value.  Using the [Let command](#let), you can assign the value of an expression to a variable.  Variables can be used in expressions, as well, so that you could create an expression that uses both numbers and other variables to assign the value to another variable:
+
+    let $myVar = $someVar + 2
+
+If $someVar had the value of 3, then $myVar would end up holding a value of 5, since 3 + 2 is 5.  If $someVar were 0, then $myVar would be 2, and so on.
+
+If you refer to a variable that has not had a value assigned to it with a let command, then it will automatically start out with a value of 0.
+
 #### Condition Expressions
 
-You might have noticed that the 'if' command examples above have an expression after the 'if' that makes use of some math.  Those are examples of condition expressions in Rollo.
+You might have noticed that the 'if' command examples in the [Command Blocks](#command-blocks) section have an expression after the 'if' that makes use of comparisons.  Those are examples of condition expressions in Rollo.
 
 Condition Expressions can make use of the following comparison operators:
 
@@ -220,6 +244,15 @@ You can also use 'is' before the comparison.  So these are all valid and mean th
 You can even do the following, though it looks quite strange:
 
     2 is == 8 / (2 * 2)
+    
+Any valid Rollo expression can be used in a comparison, which means that [variables](#variables) and [functions](#rollo-functions) are also allowed:
+
+    let $speedLimit = 50
+    if speed() > $speedLimit {
+        say "We're going too fast!"
+    }
+
+That code will use the say command to warn us if the Sphero is going over 50% of its max speed, since 50 is the value given to $speedLimit.
 
 #### Subroutines
 
@@ -395,7 +428,7 @@ Expressions need not be complex.  For example, the following line of code assign
 ### Flow Control
 
 ##### DO ... UNTIL
-_**do**_ { block-of-commands } _**until**_ *condition*:expression
+_**do**_ [{ block-of-commands }](#command-blocks) _**until**_ [*condition*:expression](#condition-expressions)
 
 The **do ... until** command can be thought of as a combination of the **if** and **repeat** commands.  The code inside of the block will continue to repeat as long as the condition specified is **not** true.  That is the opposite effect of the **while** and **do ... while** loops!  Another thing to pay attention to is that no matter what the expression is, the block of code will always execute *at least once*.  The following example will cause the Sphero to move and turn three times:
 
@@ -410,10 +443,8 @@ It does so by increasing the value of $index by one each time through the loop, 
 
 In most cases you will want to use the **while** loop instead of **do ... until**, as you will only want the block of code to run if the comparison condition is true.  Use **do ... until** only when you want the block to run one time *no matter what*.
 
-See **if** for more information on comparison expressions.
-
 ##### DO ... WHILE
-_**do**_ { block-of-commands } _**while**_ *condition*:expression
+_**do**_ [{ block-of-commands }](#command-blocks) _**while**_ [*condition*:expression](#condition-expressions)
 
 The **do ... while** command can be thought of as a combination of the **if** and **repeat** commands.  The code inside of the block will continue to repeat as long as the condition specified evaluates to true.  The trick to pay attention to is that no matter what the expression is, the block of code will always execute *at least once*.  The following example will cause the Sphero to move and turn three times:
 
@@ -428,8 +459,6 @@ It does so by increasing the value of $index by one each time through the loop, 
 
 In most cases you will want to use the **while** loop instead of **do ... while**, as you will only want the block of code to run if the comparison condition is true.  Use **do ... while** only when you want the block to run one time *no matter what*.
 
-See **if** for more information on comparison expressions.
-
 ##### GOSUB
 _**gosub**_ *name*:sub_label
 
@@ -438,7 +467,7 @@ Causes Rollo to execute the named **sub** one time.  Unlike strings, labels shou
 Alias: *call*
 
 ##### IF
-_**if**_ *condition*:expression** { block-of-commands }
+_**if**_ [*condition*:expression](#condition-expressions) [{ block-of-commands }](#command-blocks)
 
 The **if** command allows a block of commands to be executed only if the expression passed to it is evaluated to be true.  Consider the following example, which will set the Sphero's color to yellow only if the value of the variable $test is greater than 10:
 
@@ -446,14 +475,14 @@ The **if** command allows a block of commands to be executed only if the express
         color 'yellow'
     }
 
-Condition expressions consist of two mathematical expressions (which may or may not make use of variables) separated by a comparison operator.  Rollo currently understands the following: < (less than), > (greater than), <= (less than or equal), >= (greater than or equal), == or === (equal), != or !== (not equal).  This means the previous example could be written like the following:
+Condition expressions consist of two mathematical expressions (which may or may not make use of variables) separated by a comparison operator. This means the previous example could be written like the following:
 
     if $test * 2 > 10 + $anotherVar {
         color 'yellow'
     }
 
 ##### IF ELSE
-_**if**_ *condition*:expression** { block-of-commands } _**else**_ { block-of-commands }
+_**if**_ [*condition*:expression](#condition-expressions) [{ block-of-commands }](#command-blocks) _**else**_ [{ block-of-commands }](#command-blocks)
 
 Same as the regular **if** command, except that there is a second block of lines that is run if the **if** condition expression is false.  Consider the following example, which will set the Sphero's color to yellow if the value of the variable $test is greater than 10, otherwise it will set the color to red:
 
@@ -464,7 +493,7 @@ Same as the regular **if** command, except that there is a second block of lines
     }
 
 ##### REPEAT
-_**repeat**_ *count*:number { block-of-commands }
+_**repeat**_ *count*:number [{ block-of-commands }](#command-blocks)
 
 The **repeat** command causes the group of lines inside the curly braces { } to be repeated the specified number of times.  For example, the following will cause the Sphero to drive in a square:
 
@@ -476,7 +505,7 @@ The **repeat** command causes the group of lines inside the curly braces { } to 
 Alias: *loop*
 
 ##### SUB
-_**sub**_ *name*:sub_label { block-of-commands }
+_**sub**_ *name*:sub_label [{ block-of-commands }](#command-blocks)
 
 The **sub** command defines a named block of commands that can be executed by using the **gosub** command.  The **sub** command can only be used in the root level of the Rollo program, meaning that it cannot be used inside of any sort of block of code (though the **gosub** command that calls it certainly can).  Unlike with strings, a label should have neither single nor double quotes around it.
 
@@ -506,7 +535,7 @@ Causes the Rollo to wait until the Sphero has been hit by something (like a hand
 Alias: *waitForHit*
 
 ##### WHILE
-_**while**_ *condition*:expression { block-of-commands }
+_**while**_ [*condition*:expression](#condition-expressions) [{ block-of-commands }](#command-blocks)
 
 The **while** command can be thought of as a combination of the **if** and **repeat** commands.  The code inside of the block will continue to repeat as long as the condition specified evaluates to true.  The following example will cause the Sphero to move and turn three times:
 
