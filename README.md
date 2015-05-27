@@ -7,7 +7,8 @@ I'm still building out and designing Rollo.  While you certainly could start pla
 
 ### Table Of Contents
 - [Pulling Rollo into your Cylon.js project and passing it some code](#pulling-rollo-into-your-cylonjs-project-and-passing-it-some-code)
-- [Sample Rollo program](#sample-rollo-program)
+- [Check out the example program](#check-out-the-example-program)
+- [Sample Rollo script](#sample-rollo-script)
 - [Rollo Syntax](#rollo-syntax)
   - [Case Insensitive](#case-insensitive)
   - [Optional Parameters](#optional-parameters)
@@ -66,7 +67,11 @@ If you prefer, you can pass a string with a full or relative file path to the so
       console.log("ROLLO: Shutting down");
     });
 
-## Sample Rollo program
+## Check out the example program
+
+You can check out the [example program here](examples/) if you want to get up and running with something basic.
+
+## Sample Rollo script
 
 The following Rollo program will cause the Sphero to make a 'C' shape, reverse direction, and retrace its steps.
 
