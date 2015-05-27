@@ -1,0 +1,22 @@
+{
+  "name": "sphero1",
+  "version": "1.0.0",
+  "description": "Demo Rollo app that executes a Rollo script file",
+  "main": "runRolloFileExample.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "cylon.js",
+    "sphero",
+    "rollo"
+  ],
+  "author": "Michael Oryl",
+  "license": "ISC",
+  "dependencies": {
+    "cylon": "^1.0.0",
+    "cylon-sphero": "^0.19.0",
+    "q": "^1.3.0",
+    "rollo": "*"
+  }
+}

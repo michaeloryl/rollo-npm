@@ -1,0 +1,27 @@
+color 'darkgray'
+flash 'green'
+waitForTap 3 seconds
+
+speed 25
+go 2
+
+repeat 2 times {
+  gosub rightAndGo
+}
+
+reverse
+go 2
+
+repeat 2 times {
+  gosub leftAndGo
+}
+
+sub rightAndGo {
+  right
+  go 2
+}
+
+sub leftAndGo {
+  left
+  go 2
+}
