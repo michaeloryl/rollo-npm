@@ -1,5 +1,5 @@
 # rollo-npm
-The Rollo programming language for the Orbotix Sphero robot using Node.js and Cylon.js
+The Rollo programming language for the [Orbotix Sphero](http://www.gosphero.com) robot using Node.js and [Cylon.js](https://www.npmjs.com/package/cylon)
 
 ### Rollo is still early code!
 
@@ -15,7 +15,7 @@ Or this, if you want it saved to your `package.json` file:
 
     npm install rollo --save
 
-In order to make use of Rollo, you need to require it in your source code where it is accessible from your main Cylon.js work function:
+In order to make use of Rollo, you need to require it in your source code where it is accessible from your main [Cylon.js](https://www.npmjs.com/package/cylon) [work function](http://cylonjs.com/documentation/guides/working-with-robots/):
 
     var Rollo = require('rollo');
 
@@ -34,7 +34,6 @@ If you prefer, you can pass a string with a full or relative file path to the so
     });
 
 ### Table Of Contents
-- [Pulling Rollo into your Cylon.js project and passing it some code](#pulling-rollo-into-your-cylonjs-project-and-passing-it-some-code)
 - [Check out the example program](#check-out-the-example-program)
 - [Sample Rollo script](#sample-rollo-script)
 - [Rollo Syntax](#rollo-syntax)
