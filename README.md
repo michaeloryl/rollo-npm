@@ -3,7 +3,35 @@ The Rollo programming language for the Orbotix Sphero robot using Node.js and Cy
 
 ### Rollo is still early code!
 
-I'm still building out and designing Rollo.  While you certainly could start playing around with it in your own apps, expect a lot of breaking changes and new features for the time being.
+I'm still building out and designing Rollo.  Things are being added often, though generally in a backwards compatible way.
+
+## Quick start
+
+Add the Rollo dependency to your project with this:
+
+    npm install rollo
+
+Or this, if you want it saved to your `package.json` file:
+
+    npm install rollo --save
+
+In order to make use of Rollo, you need to require it in your source code where it is accessible from your main Cylon.js work function:
+
+    var Rollo = require('rollo');
+
+To run a Rollo script/program, you need to pass Rollo's run function a reference to your Sphero (typically by using the `my` parameter Cylon,js sends to your `work` function), a string that contains your Rollo program's source code, and a callback. The callback will be executed when all of the Rollo commands have been run by your Sphero:
+
+    var source = "go 2\n right\n go 2";
+
+    Rollo.run(my.sphero, source, function() {
+      console.log("ROLLO: Shutting down");
+    });
+
+If you prefer, you can pass a string with a full or relative file path to the source file by calling `runFile()` instead of the previous example's `run()`:
+
+    Rollo.runFile(my.sphero, "~/myScript.rol", function() {
+      console.log("ROLLO: Shutting down");
+    });
 
 ### Table Of Contents
 - [Pulling Rollo into your Cylon.js project and passing it some code](#pulling-rollo-into-your-cylonjs-project-and-passing-it-some-code)
@@ -48,24 +76,6 @@ I'm still building out and designing Rollo.  While you certainly could start pla
   - [HEADING](#heading)
   - [SPEED](#speed)
   - [DEFAULT SPEED](#default-speed)
-
-## Pulling Rollo into your Cylon.js project and passing it some code
-
-In order to make use of Rollo, you need to require it in your source code where it is accessible from your main Cylon.js work function:
-
-    var Rollo = require('rollo');
-
-To run a Rollo script/program, you need to pass Rollo's run function a reference to your Sphero, a string that contains your Rollo program's source code, and a callback. The callback will be executed when all of the Rollo commands have been run by your Sphero:
-
-    Rollo.run(my.sphero, source, function() {
-      console.log("ROLLO: Shutting down");
-    });
-
-If you prefer, you can pass a string with a full or relative file path to the source file:
-
-    Rollo.runFile(my.sphero, "~/myScript.rol", function() {
-      console.log("ROLLO: Shutting down");
-    });
 
 ## Check out the example program
 
