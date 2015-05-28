@@ -22,7 +22,7 @@ And you'd see output like the following:
 
 You need to copy the `/dev/tty.Sphero-ROB-AMP-SPP` portion and paste it over top of the one that is already there in the Connections section of the Cylon object: 
 
-        sphero: {adaptor: 'sphero', port: '/dev/tty.Sphero-ROB-AMP-SPP'}
+    sphero: {adaptor: 'sphero', port: '/dev/tty.Sphero-ROB-AMP-SPP'}
 
 Once that has been done, you should be able to run the script.  If you like, you can use the simple `sample.rol` script file that is already included.  You would do that with the following command:
 
