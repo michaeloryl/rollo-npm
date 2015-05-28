@@ -18,6 +18,7 @@ module.exports.main = function(my) {
 
   Rollo.runFile(my.sphero, fileName, function () {
     console.log("ROLLO: Shutting down");
+    process.exit(0);
   });
 };
 
