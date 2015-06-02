@@ -14,6 +14,8 @@ module.exports.main = function(my) {
     process.exit(1);
   }
 
+  Rollo.setDebug(true);
+
   var fileName = process.argv[2];
 
   Rollo.runFile(my.sphero, fileName, function () {
