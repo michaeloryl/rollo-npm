@@ -79,7 +79,7 @@ If you prefer, you can pass a string with a full or relative file path to the so
   - [setDebug()](#setdebug)
   - [setEcho()](#setecho)
 - [Capturing Rollo Events](#capturing-rollo-events)
-  - [registerLineEvent()](#registerlinevent)
+  - [registerLineEvent()](#registerlineevent)
   - [registerSayEvent()](#registersayevent)
 
 ## Check out the example program
