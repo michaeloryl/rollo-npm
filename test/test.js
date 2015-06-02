@@ -64,67 +64,67 @@ describe('parse', function () {
 
   it('should parse a conditional > block', function () {
     parse('if 2 > 4 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']],[]]]);
+      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']], []]]);
     parse('if 2 greater than 4 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']],[]]]);
+      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']], []]]);
     parse('if 2 is greater than 4 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']],[]]]);
+      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']], []]]);
     parse('if 2 more than 4 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']],[]]]);
+      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']], []]]);
     parse('if 2 is more than 4 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']],[]]]);
+      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']], []]]);
   });
 
   it('should parse a conditional < block', function () {
     parse('if 5 < 2 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['<', 5, 2], [['stop'], ['go']],[]]]);
+      .should.deep.equal([['if', ['<', 5, 2], [['stop'], ['go']], []]]);
     parse('if 5 less than 2 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['<', 5, 2], [['stop'], ['go']],[]]]);
+      .should.deep.equal([['if', ['<', 5, 2], [['stop'], ['go']], []]]);
     parse('if 5 is less than 2 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['<', 5, 2], [['stop'], ['go']],[]]]);
+      .should.deep.equal([['if', ['<', 5, 2], [['stop'], ['go']], []]]);
   });
 
   it('should parse a conditional == block', function () {
     parse('if 1 == 7 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']],[]]]);
+      .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']], []]]);
     parse('if 1 === 7 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']],[]]]);
+      .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']], []]]);
     parse('if 1 equals 7 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']],[]]]);
+      .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']], []]]);
     parse('if 1 is equal to 7 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']],[]]]);
+      .should.deep.equal([['if', ['==', 1, 7], [['stop'], ['go']], []]]);
   });
 
   it('should parse a conditional != block', function () {
     parse('if 1 != 7 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']],[]]]);
+      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']], []]]);
     parse('if 1 !== 7 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']],[]]]);
+      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']], []]]);
     parse('if 1 not equals 7 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']],[]]]);
+      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']], []]]);
     parse('if 1 is not equal to 7 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']],[]]]);
+      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']], []]]);
   });
 
   it('should parse a conditional >= block', function () {
     parse('if 10 >= 11 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['>=', 10, 11], [['stop'], ['go']],[]]]);
+      .should.deep.equal([['if', ['>=', 10, 11], [['stop'], ['go']], []]]);
   });
 
   it('should parse a conditional <= block', function () {
     parse('if 10 <= 11 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['<=', 10, 11], [['stop'], ['go']],[]]]);
+      .should.deep.equal([['if', ['<=', 10, 11], [['stop'], ['go']], []]]);
   });
 
   it('should parse a conditional block with a complex comparison', function () {
     //console.log("Object: " + JSON.stringify(parse('if 10 >= 2 + 3 {\nstop\ngo\n}')));
     parse('if 10 >= 2 + 3 {\nstop\ngo\n}').map(linesOnly)
-      .should.deep.equal([["if", [">=", 10, ["+", [2, 3]]], [["stop"], ["go"]],[]]]);
+      .should.deep.equal([["if", [">=", 10, ["+", [2, 3]]], [["stop"], ["go"]], []]]);
   });
 
   it('should parse an if ... else', function () {
     parse('if 10 >= 11 {\nstop\n}\nelse {\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['>=', 10, 11], [['stop']],[['go']]]]);
+      .should.deep.equal([['if', ['>=', 10, 11], [['stop']], [['go']]]]);
   });
 
   it('should parse a sub and gosub', function () {
@@ -134,13 +134,13 @@ describe('parse', function () {
 
   it('should parse regardless of case', function () {
     parse('iF 1 != 7 {\nsTOp\nGo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']],[]]]);
+      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']], []]]);
     parse('IF 1 !== 7 {\nSTOP\nGO\n}').map(linesOnly)
-      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']],[]]]);
+      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']], []]]);
     parse('If 1 NOT EQuals 7 {\nstOP\nGO\n}').map(linesOnly)
-      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']],[]]]);
+      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']], []]]);
     parse('if 1 IS nOt EquAL to 7 {\nSTOP\ngo\n}').map(linesOnly)
-      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']],[]]]);
+      .should.deep.equal([['if', ['!=', 1, 7], [['stop'], ['go']], []]]);
   });
 });
 

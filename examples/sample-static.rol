@@ -1,0 +1,11 @@
+say 'Starting'
+color 'none'
+flash 'green'
+waitForTap 3 seconds
+pulse 'blue'
+wait 1
+pulse 'white'
+wait 1
+pulse 'orange'
+wait 1
+say 'Done'

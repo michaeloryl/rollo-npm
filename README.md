@@ -75,6 +75,12 @@ If you prefer, you can pass a string with a full or relative file path to the so
   - [HEADING](#heading)
   - [SPEED](#speed)
   - [DEFAULT SPEED](#default-speed)
+- [Configuring Rollo](#configuring-rollo)
+  - [DEBUG](#debug)
+  - [ECHO](#echo)
+- [Capturing Rollo Events](#capturing-rollo-events)
+  - [LINES](#lines)
+  - [SAY](#say)
 
 ## Check out the example program
 
@@ -656,3 +662,49 @@ Returns the default speed of the Sphero.  This is the speed that the Rollo will 
     if defaultSpeed() == 100 {
         say "Full speed ahead!"
     }
+
+## Configuring Rollo
+
+Currently Rollo allows for only a few configuration options.  You access them through the Rollo object that you `require` into your application.
+
+##### DEBUG
+
+You can configure debug mode, which outputs every Rollo line executed to the Node.js console log, by passing a true or false value to the `setDebug()` function, as shown in the following example:
+
+    var Rollo = require('rollo');
+    
+    Rollo.setDebug(true); // false is the default
+
+##### ECHO
+
+You can configure whether or not the output of Rollo `say` commands will be output to the Node.js consolel log by passing a true or false value to the `setEcho()` function, as shown in the following example:
+
+    var Rollo = require('rollo');
+    
+    Rollo.setEcho(true); // false is the default
+    
+## Capturing Rollo Events
+
+##### LINES
+
+Your application can be notified through a callback whenever a new line is being run by the Rollo exec process.  This would be useful if, say, you wanted to highlight each line in your code as it is run through some sort of user interface you've built.  You do this by calling the `registerLineEvent()` method on the Rollo object and pass it a callback.  Your callback will be called with a single data parameter that contains the parsed line object.
+
+That object has two properties, `number` and `line`.  Number is the line number of the currently running line in the source you passed to Rollo.  The line property in the object contains the command and any parameters.
+
+    var Rollo = require('rollo');
+    
+    registerLineEvent(function(data) {
+      console.log("LINE: " + data.number);
+    });
+
+##### SAY
+
+Your app can receive the output of any executed `say` commands by using the `registerSayEvent()` method and passing it a callback.  Your callback will receive one parameter, which is the text that was sent as a parameter to the `say`command.  You use it like in the following:
+
+    var Rollo = require('rollo');
+    
+    registerSayEvent(function(text) {
+      console.log("Rolo said: " + text);
+    });
+
+
