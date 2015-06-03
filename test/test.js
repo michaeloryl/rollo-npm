@@ -11,7 +11,7 @@ var parse = require('../lib/rolloLanguage').parse;
 var constants = require('../lib/constants');
 var proxyquire = require('proxyquire');
 
-console.log("skip: " + process.env.MOCHA_SKIP_SLOW_TESTS);
+//console.log("skip: " + process.env.MOCHA_SKIP_SLOW_TESTS);
 
 var doSlowTests = process.env.MOCHA_SKIP_SLOW_TESTS ? false : true;
 
@@ -75,13 +75,35 @@ describe('parse', function () {
       .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']], []]]);
   });
 
-  it('should parse a conditional < block', function () {
-    parse('if 5 < 2 {\nstop\ngo\n}').map(linesOnly)
+  it('should parse a conditional > block', function () {
+    parse('if 2 > 4 {\nstop\ngo\n}').map(linesOnly)
+      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']], []]]);
+    parse('if 2 greater than 4 {\nstop\ngo\n}').map(linesOnly)
+      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']], []]]);
+    parse('if 2 is greater than 4 {\nstop\ngo\n}').map(linesOnly)
+      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']], []]]);
+    parse('if 2 more than 4 {\nstop\ngo\n}').map(linesOnly)
+      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']], []]]);
+    parse('if 2 is more than 4 {\nstop\ngo\n}').map(linesOnly)
+      .should.deep.equal([['if', ['>', 2, 4], [['stop'], ['go']], []]]);
+  });
+
+  it('should parse EOL comments', function () {
+    parse('if 5 < 2 {\nstop# comment here\ngo\n}').map(linesOnly)
       .should.deep.equal([['if', ['<', 5, 2], [['stop'], ['go']], []]]);
-    parse('if 5 less than 2 {\nstop\ngo\n}').map(linesOnly)
+    parse('if 5 less than 2 {\nstop\ngo #comment here\n}').map(linesOnly)
       .should.deep.equal([['if', ['<', 5, 2], [['stop'], ['go']], []]]);
-    parse('if 5 is less than 2 {\nstop\ngo\n}').map(linesOnly)
+    parse('if 5 is less than 2 {#comment here\nstop\ngo\n}').map(linesOnly)
       .should.deep.equal([['if', ['<', 5, 2], [['stop'], ['go']], []]]);
+  });
+
+  it('should parse line comments', function () {
+    parse('if 5 < 2 {\n# comment here\nstop\ngo\n}').map(linesOnly)
+      .should.deep.equal([['if', ['<', 5, 2], [['#'], ['stop'], ['go']], []]]);
+    parse('if 5 less than 2 {\n  #comment here\nstop\ngo \n}').map(linesOnly)
+      .should.deep.equal([['if', ['<', 5, 2], [['#'], ['stop'], ['go']], []]]);
+    parse('if 5 is less than 2 {\nstop\n#comment here\n # more comment here\ngo\n}').map(linesOnly)
+      .should.deep.equal([['if', ['<', 5, 2], [['stop'], ['#'], ['#'],  ['go']], []]]);
   });
 
   it('should parse a conditional == block', function () {
@@ -231,7 +253,7 @@ describe('do ... until', function () {
 
     execute(mySphero, parse('do {\n  let $var1 = $var1 + 1\n  color "blue"\n} until $var1 > 2 '),
       function () {
-        console.log('count: ' + mySphero.setColor.callCount);
+        //console.log('count: ' + mySphero.setColor.callCount);
         variables['$var1'].should.equal(3);
         mySphero.setColor.callCount.should.equal(3);
         done();
@@ -248,7 +270,7 @@ describe('if', function () {
     var mySphero = getMockSphero();
 
     execute(mySphero, parse('if 10> 9 {\ncolor "red"\n go\n}'), function () {
-      console.log('count: ' + mySphero.setColor.callCount);
+      //console.log('count: ' + mySphero.setColor.callCount);
       mySphero.setColor.callCount.should.equal(1);
       mySphero.roll.callCount.should.equal(2);
       done();
@@ -259,7 +281,7 @@ describe('if', function () {
     var mySphero = getMockSphero();
 
     execute(mySphero, parse('if 10 <= 9 {\ncolor "red"\n go\n}'), function () {
-      console.log('count: ' + mySphero.setColor.callCount);
+      //console.log('count: ' + mySphero.setColor.callCount);
       mySphero.setColor.callCount.should.equal(0);
       mySphero.roll.callCount.should.equal(1);
       done();
@@ -271,7 +293,7 @@ describe('if', function () {
     var state = require('../lib/rolloExec').state;
 
     execute(mySphero, parse('if 10 <= 9 {\ncolor "red"\n go\n}\nelse {\nspeed 50\n}\n'), function () {
-      console.log('count: ' + mySphero.setColor.callCount);
+      //console.log('count: ' + mySphero.setColor.callCount);
       mySphero.setColor.callCount.should.equal(0);
       mySphero.roll.callCount.should.equal(1);
       state.defaultSpeed.should.equal(127);
@@ -284,7 +306,7 @@ describe('if', function () {
 
     execute(mySphero,
       parse('if 10 - 2 > 3 * (9 - 2*4) {\ncolor "red"\n go\n}'), function () {
-        console.log('count: ' + mySphero.setColor.callCount);
+        //console.log('count: ' + mySphero.setColor.callCount);
         mySphero.setColor.callCount.should.equal(1);
         mySphero.roll.callCount.should.equal(2);
         done();
@@ -411,7 +433,7 @@ describe('waitForTap', function () {
 
       execute(mySphero, parse('waitForTap 1'), function () {
         var now2 = Date.now();
-        console.log(now2 - now);
+        //console.log(now2 - now);
         now2.should.be.above(now + 250);
         mySphero.finishCalibration.callCount.should.equal(1);
         done();
