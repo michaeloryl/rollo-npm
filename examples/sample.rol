@@ -1,26 +1,33 @@
+# Set color, flash, and then wait up to 3 seconds for a tap
 color 'darkgray'
 flash 'green'
 waitForTap 3 seconds
 
+# Set speed to 25% and go for 2 seconds
 speed 25
 go 2
 
+# Run the rightAndGo sub twice
 repeat 2 times {
   gosub rightAndGo
 }
 
+# Change direction and go for 2 seconds
 reverse
 go 2
 
+# Run the leftAndGo sub twice
 repeat 2 times {
   gosub leftAndGo
 }
 
+# This creates the rightAndGo sub
 sub rightAndGo {
   right
   go 2
 }
 
+# This creates the leftAndGo sub
 sub leftAndGo {
   left
   go 2

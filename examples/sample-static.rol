@@ -1,11 +1,18 @@
+# say something, set color, and then flash once
 say 'Starting'
 color 'none'
 flash 'green'
-waitForTap 3 seconds
+
+waitForTap 3 seconds # wait for 3 seconds or a tap
+
+# Pulse color and wait 1s so we can see it
 pulse 'blue'
 wait 1
+
 pulse 'white'
 wait 1
+
 pulse 'orange'
 wait 1
-say 'Done'
+
+say 'Done' # all done now
