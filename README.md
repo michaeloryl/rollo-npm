@@ -43,6 +43,7 @@ If you prefer, you can pass a string with a full or relative file path to the so
   - [registerLineEvent()](#registerlineevent)
   - [registerSayEvent()](#registersayevent)
 - [Rollo Syntax](#rollo-syntax)
+  - [Comments](#comments)
   - [Case Insensitive](#case-insensitive)
   - [Optional Parameters](#optional-parameters)
   - [Words (strings) versus Numbers](#words-strings-versus-numbers)
@@ -90,29 +91,34 @@ You can check out the [example program here](examples/) if you want to get up an
 
 The following Rollo program will cause the Sphero to make a 'C' shape, reverse direction, and retrace its steps.
 
+    # setup the starting color, flash green, and then wait
     color 'darkgray'
     flash 'green'
     waitForTap 3 seconds
 
+    # set speed and go!
     speed 25
     go 2
 
-    repeat 2 times {
+    repeat 2 times {  # call the rightAndGo sub twice
       gosub rightAndGo
     }
 
-    reverse
+    # do a 180 degree turn and go again
+    reverse 
     go 2
 
-    repeat 2 times {
+    repeat 2 times { # run the leftAndGo sub two times
       gosub leftAndGo
     }
 
+    # this is a subroutine that gets called from other parts of the code
     sub rightAndGo {
       right
       go 2
     }
 
+    # this is another subroutine
     sub leftAndGo {
       left
       go 2
@@ -170,9 +176,21 @@ Rollo is a simple language that is intended for kids and non-programmers. Comman
 
 This causes the Sphero to turn right.
 
+#### Comments
+
+Rollo allows people to put notes inside of their programs to make it easier for other people, or the programmer him or herself, to figure out what's going on.  These are called comments.
+
+You can put comments on their own line, or you can add them to the end of a line that contains Rollo commands.  They can make your code a lot more readable.
+
+    # This is a comment
+    go 2 seconds # this line will make the Sphero go straight for 2 seconds
+    
+    # The next line will change the color of the Sphero to orange
+    color 'orange'
+    
 #### Case Insensitive
 
-Apart from things inside quotes, Rollo doesn't care whether you use uppercase letters or lowercase letters.  Even when it comes to the strings used to specify colors, Rollo still doesn't care.
+Apart from things inside quotes, what we call strings, Rollo doesn't care whether you use uppercase letters or lowercase letters.  Even when it comes to the strings used to specify colors, Rollo still doesn't care.
 
 All of the following commands are valid and mean the same thing:
 
