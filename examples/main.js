@@ -5,7 +5,8 @@
  * Time: 7:48 PM
  */
 
-var Rollo = require('rollo');
+// var Rollo = require('rollo'); // use this if you want to call the Rollo from node_modules
+var Rollo = require('../lib');
 
 module.exports.main = function(my) {
   if (process.argv.length < 3) {
