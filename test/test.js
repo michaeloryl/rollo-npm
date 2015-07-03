@@ -23,6 +23,7 @@ describe('state', function () {
     state.heading.should.equal(0);
     state.cmdCount.should.equal(0);
     state.unknownCmdCount.should.equal(0);
+    state.stopped.should.equal(false);
   })
 });
 
@@ -42,6 +43,19 @@ function linesOnly(obj) {
   } else {
     return obj;
   }
+}
+
+function getMockSphero() {
+  mySphero = {
+    roll: sinon.stub(),
+    on: sinon.stub(),
+    configureCollisionDetection: sinon.stub(),
+    setColor: sinon.stub(),
+    startCalibration: sinon.stub(),
+    finishCalibration: sinon.stub()
+  };
+
+  return mySphero;
 }
 
 describe('parse', function () {
@@ -314,6 +328,7 @@ describe('if', function () {
   });
 
 });
+
 /*
  * let $var = 2 + 3*2 + (2+$v2) /3
  */
@@ -438,6 +453,27 @@ describe('waitForTap', function () {
         mySphero.finishCalibration.callCount.should.equal(1);
         done();
       });
+    });
+  }
+});
+
+describe('stop()', function () {
+  var execute = require('../lib/rolloExec').execute;
+  var state = require('../lib/rolloExec').state;
+  var stop = require('../lib').stop;
+
+  if (doSlowTests) {
+    it('show allow a stop() command to halt execution', function (done) {
+      var mySphero = getMockSphero();
+
+      state.stopped = true;
+
+      execute(mySphero, parse('waitForTap 1\ncolor "blue"\ncolor "red"'), function () {
+        mySphero.setColor.callCount.should.equal(0); // if >0, then the stop command didn't prevent it
+        done();
+      });
+
+      setTimeout(function() { stop(); }, 250);
     });
   }
 });
@@ -857,16 +893,3 @@ describe('speed', function () {
     });
   })
 });
-
-function getMockSphero() {
-  mySphero = {
-    roll: sinon.stub(),
-    on: sinon.stub(),
-    configureCollisionDetection: sinon.stub(),
-    setColor: sinon.stub(),
-    startCalibration: sinon.stub(),
-    finishCalibration: sinon.stub()
-  };
-
-  return mySphero;
-}

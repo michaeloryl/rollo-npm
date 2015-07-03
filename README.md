@@ -43,6 +43,7 @@ If you prefer, you can pass a string with a full or relative file path to the so
   - [registerLineEvent()](#registerlineevent)
   - [registerSayEvent()](#registersayevent)
   - [registerLogEvent()](#registerlogevent)
+- [Stopping a Running Program](#stopping-a-running-program)
 - [Rollo Syntax](#rollo-syntax)
   - [Comments](#comments)
   - [Case Insensitive](#case-insensitive)
@@ -178,6 +179,14 @@ Your app can receive the output of any console logging output by the Rollo comma
     Rollo.registerLogEvent(function(text) {
       console.log("Rolo log: " + text);
     });
+
+## Stopping a Running Program
+
+Your app can stop a Rollo program that is in progress by issuing the `stop()` command on the main Rollo object:
+
+    var Rollo = require('rollo');
+    
+    Rollo.stop();
 
 ## Rollo Syntax
 

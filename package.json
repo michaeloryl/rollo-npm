@@ -1,6 +1,6 @@
 {
   "name": "rollo",
-  "version": "0.13.3",
+  "version": "0.13.4",
   "description": "The Rollo programming language for the Orbotix Sphero robot using Node.js and Cylon.js",
   "main": "lib/index.js",
   "scripts": {
