@@ -59,6 +59,7 @@ If you prefer, you can pass a string with a full or relative file path to the so
     - [REVERSE](#reverse)
     - [RIGHT](#right)
     - [SPEED](#speed)
+    - [STOP](#stop)
     - [TURN](#turn)
   - [Variable Assignment](#variable-assignment)
     - [LET](#let)
@@ -506,6 +507,11 @@ Alias: *turnRight*
 **_speed_** *percent*:number
 
 Sets the percentage of full speed the sphero will use when moving
+
+##### STOP
+**_stop_**
+
+Sets the Sphero's speed to 0, causing it to stop.  If the Sphero is moving quickly at the time, the stop will not be instant.
 
 ##### TURN
 _**turn**_ *degrees*:number
