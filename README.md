@@ -42,6 +42,7 @@ If you prefer, you can pass a string with a full or relative file path to the so
 - [Capturing Rollo Events](#capturing-rollo-events)
   - [registerLineEvent()](#registerlineevent)
   - [registerSayEvent()](#registersayevent)
+  - [registerLogEvent()](#registerlogevent)
 - [Rollo Syntax](#rollo-syntax)
   - [Comments](#comments)
   - [Case Insensitive](#case-insensitive)
@@ -160,12 +161,22 @@ That object has two properties, `number` and `line`.  Number is the line number 
 
 ##### registerSayEvent()
 
-Your app can receive the output of any executed `say` commands by using the `registerSayEvent()` method and passing it a callback.  Your callback will receive one parameter, which is the text that was sent as a parameter to the `say`command.  You use it like in the following:
+Your app can receive the output of any executed `say` commands by using the `registerSayEvent()` method and passing it a callback.  Your callback will receive one parameter, which is the text that was sent as a parameter to the `say` command.  You use it like in the following:
 
     var Rollo = require('rollo');
     
     Rollo.registerSayEvent(function(text) {
       console.log("Rolo said: " + text);
+    });
+
+##### registerLogEvent()
+
+Your app can receive the output of any console logging output by the Rollo command processor by using the `registerLogEvent()` method and passing it a callback.  Your callback will receive one parameter, which is the text that was logged to the console.  You use it like in the following:
+
+    var Rollo = require('rollo');
+    
+    Rollo.registerLogEvent(function(text) {
+      console.log("Rolo log: " + text);
     });
 
 ## Rollo Syntax
