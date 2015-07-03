@@ -154,7 +154,7 @@ That object has two properties, `number` and `line`.  Number is the line number 
 
     var Rollo = require('rollo');
     
-    registerLineEvent(function(data) {
+    Rollo.registerLineEvent(function(data) {
       console.log("LINE: " + data.number);
     });
 
@@ -164,7 +164,7 @@ Your app can receive the output of any executed `say` commands by using the `reg
 
     var Rollo = require('rollo');
     
-    registerSayEvent(function(text) {
+    Rollo.registerSayEvent(function(text) {
       console.log("Rolo said: " + text);
     });
 
