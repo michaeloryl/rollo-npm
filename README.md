@@ -40,9 +40,11 @@ If you prefer, you can pass a string with a full or relative file path to the so
   - [setDebug()](#setdebug)
   - [setEcho()](#setecho)
 - [Capturing Rollo Events](#capturing-rollo-events)
+  - [registerCompleteEvent()](#registercompleteevent)
+  - [registerDisconnectEvent()](#registerdisconnectevent)
   - [registerLineEvent()](#registerlineevent)
-  - [registerSayEvent()](#registersayevent)
   - [registerLogEvent()](#registerlogevent)
+  - [registerSayEvent()](#registersayevent)
 - [Stopping a Running Program](#stopping-a-running-program)
 - [Rollo Syntax](#rollo-syntax)
   - [Comments](#comments)
@@ -148,6 +150,26 @@ You can configure whether or not the output of Rollo `say` commands will be outp
     Rollo.setEcho(true); // false is the default
     
 ## Capturing Rollo Events
+
+##### registerCompleteEvent()
+
+Your app can be notified when the script has completed running by registering a callback for this event.  This can be triggered by the normal end of a script being hit (ie. no more commands are left) or due to the reception of a `Rollo.stop()` command:
+
+    var Rollo = require('rollo');
+    
+    Rollo.registerCompleteEvent(function() {
+      console.log("Rolo is done");
+    });
+
+##### registerDisconnectEvent()
+
+Your app can be notified your Sphero has disconnected for some reason:
+
+    var Rollo = require('rollo');
+    
+    Rollo.registerDisconnectEvent(function() {
+      console.log("The Sphero has lost its connection");
+    });
 
 ##### registerLineEvent()
 
